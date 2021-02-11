@@ -82,7 +82,6 @@ WHERE
     PR.description LIKE '%therapist'
     AND C.isClosed = FALSE;
 
-GROUP BY
 
 --Problem 8
 SELECT
@@ -115,6 +114,16 @@ HAVING
 
 
 -- Problem 10
-
+SELECT P.personId, P.name
+FROM
+    People P JOIN Agents A 
+    ON P.personId = A.secretIdentity
+    JOIN InvolvedIn I ON I.PersonID = I.PersonId
+    JOIN Cases C ON C.CaseID = I.CaseID
+WHERE
+    A.secretIdentity = P.personId
+    AND A.AgentID = I.AgentID
+GROUP BY P.PersonId, P.name
+HAVING COUNT(DISTINCT(A.AgentID)) = 3
 
 
