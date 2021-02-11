@@ -1,4 +1,5 @@
 -- Problem 1
+SELECT 1 AS Query;
 SELECT
     locationid,
     location
@@ -8,6 +9,7 @@ ORDER BY
     location DESC;
 
 -- Problem 2
+SELECT 2 AS Query;
 SELECT
     location
 FROM
@@ -18,6 +20,7 @@ ORDER BY
     location ASC;
 
 -- Problem 3
+SELECT 3 AS Query;
 SELECT
     COUNT(name)
 FROM
@@ -27,6 +30,7 @@ WHERE
     gender = 'Female';
 
 -- Problem 4
+SELECT 4 AS Query;
 SELECT
     P.name
 FROM
@@ -43,6 +47,7 @@ HAVING
 
 
 -- Problem 5
+SELECT 5 AS Query;
 SELECT
     P.personId,
     P.name,
@@ -57,6 +62,7 @@ WHERE
     AND C.locationId = P.locationId;
 
 -- Problem 6
+SELECT 6 AS Query;
 SELECT
     P.personId,
     P.name,
@@ -70,6 +76,7 @@ WHERE
 
 
 -- Problem 7
+SELECT 7 AS Query;
 SELECT
     PR.description,
     P.name
@@ -85,6 +92,7 @@ WHERE
 GROUP BY
 
 --Problem 8
+SELECT 8 AS Query;
 SELECT
     A.codename,
     G.gender,
@@ -97,6 +105,7 @@ WHERE
     P.password LIKE CONCAT('%', A.codename, '%');
 
 -- Problem 9
+SELECT 9 AS Query;
 SELECT
     P.PersonID,
     P.name,
@@ -115,6 +124,7 @@ HAVING
 
 
 -- Problem 10
+SELECT 10 AS Query;
 SELECT 
     P.personId, 
     P.name, 
@@ -126,7 +136,8 @@ FROM
     JOIN Genders G ON G.genderId = P.genderId 
     JOIN Cases C ON C.caseId = I.caseId
 GROUP BY P.PersonId, G.gender
-HAVING COUNT(DISTINCT(I.agentId)) = 3;
+HAVING COUNT(DISTINCT(I.agentId)) = 3; 
+
 
 
 
