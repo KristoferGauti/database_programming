@@ -28,16 +28,32 @@ WHERE
 
 -- Problem 4 Not Done
 SELECT
-    name
+    P.name
 FROM
-    People P
-    JOIN Agents A ON P.personid = A.secretidentity
-    JOIN Cases C ON C.agentid = A.agentid
+    People P,
+    Agents A,
+    InvolvedIn I
+WHERE
+    A.secretIdentity = P.personId
+    AND A.AgentID = I.AgentID
 GROUP BY
-    name
+    P.name
 HAVING
-    count(name) > 10;
+    COUNT(P.name) > 10
+ORDER BY
+    P.name ASC;
 
+--GROUP BY
+--P.name
+--HAVING
+--COUNT(I.PersonID)> 10;
+--JOIN Agents A ON P.personid = A.secretidentity
+--JOIN InvolvedIn I ON I.PersonID = A.secretIdentity
+--JOIN Cases C ON C.AgentID = A.AgentID
+--GROUP BY
+--P.name
+--HAVING
+--count(P.name) > 10;
 --Problem 5
 SELECT
     P.personId,
@@ -66,39 +82,19 @@ WHERE
 
 --Problem 7 Not finished
 SELECT
-    *
+    PR.description,
+    P.name
 FROM
-    People;
-
-SELECT
-    *
-FROM
-    cases;
-
-SELECT
-    *
-FROM
-    Locations;
-
-SELECT
-    *
-FROM
-    InvolvedIn;
-
-SELECT
-    P.personId,
-    P.name,
-    Pr.description
-FROM
-    Professions Pr
-    JOIN People P ON Pr.professionId = P.professionId
-    JOIN InvolvedIn I ON I.personId = P.personId
-    JOIN Cases C ON C.caseId = I.caseId
+    Professions PR
+    JOIN People P ON P.ProfessionID = PR.ProfessionID
+    JOIN InvolvedIn I ON I.PersonID = P.PersonID
+    JOIN Cases C ON C.CaseID = I.CaseID
 WHERE
-    C.isclosed = false
-    AND Pr.description = 'therapist';
+    PR.description LIKE '%therapist'
+    AND C.isClosed = FALSE;
 
---Problem 8 Not finished
+GROUP BY
+    --Problem 8 Not finished
 SELECT
     A.codename,
     G.gender,
@@ -112,9 +108,12 @@ WHERE
 
 -- SELECT ...
 SELECT
-    9 as Query;
-
--- SELECT ...
+    P.PersonID,
+    P.name
+FROM
+    People P
+    JOIN InvolvedIn I ON P.PersonID = I.PersonID
+    JOIN Cases C ON -- SELECT ...
 SELECT
     10 as Query;
 
