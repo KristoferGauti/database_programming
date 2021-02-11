@@ -40,8 +40,6 @@ GROUP BY
     P.name
 HAVING
     COUNT(P.name) > 10
-ORDER BY
-    P.name ASC;
 
 
 -- Problem 5
@@ -101,11 +99,19 @@ WHERE
 -- Problem 9
 SELECT
     P.PersonID,
-    P.name
+    P.name,
+    CASE
+        WHEN I.isCulprit = true THEN 'Guilty'
+        ELSE 'Not guilty'
+    END AS hasbeenculprit
 FROM
     People P
     JOIN InvolvedIn I ON P.PersonID = I.PersonID
-    JOIN Cases C ON -- SELECT ...
+    JOIN Cases C ON I.CaseId = C.CaseId
+    JOIN Locations L ON C.LocationId = L.LocationId
+GROUP BY I.isCulprit, P.PersonId
+HAVING
+    COUNT(L.Location LIKE '%vogur') >= 2;    
 
 
 -- Problem 10
