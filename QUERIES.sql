@@ -115,6 +115,29 @@ HAVING
 
 
 -- Problem 10
+SELECT 
+    P.personId, 
+    P.name, 
+    G.gender, 
+    2045 - MAX(C.year) "yearsSinceLastInvestigation"
+FROM
+    People P 
+    JOIN InvolvedIn I ON I.personId = P.personId
+    JOIN Genders G ON G.genderId = P.genderId 
+    JOIN Cases C ON C.caseId = I.caseId
+GROUP BY P.PersonId, G.gender
+HAVING COUNT(DISTINCT(I.agentId)) = 3;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
