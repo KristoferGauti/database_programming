@@ -1,4 +1,4 @@
---Problem 1
+-- Problem 1
 SELECT
     locationid,
     location
@@ -7,7 +7,7 @@ FROM
 ORDER BY
     location DESC;
 
---Problem 2
+-- Problem 2
 SELECT
     location
 FROM
@@ -17,7 +17,7 @@ WHERE
 ORDER BY
     location ASC;
 
---Problem 3
+-- Problem 3
 SELECT
     COUNT(name)
 FROM
@@ -26,7 +26,7 @@ FROM
 WHERE
     gender = 'Female';
 
--- Problem 4 Not Done
+-- Problem 4
 SELECT
     P.name
 FROM
@@ -43,18 +43,8 @@ HAVING
 ORDER BY
     P.name ASC;
 
---GROUP BY
---P.name
---HAVING
---COUNT(I.PersonID)> 10;
---JOIN Agents A ON P.personid = A.secretidentity
---JOIN InvolvedIn I ON I.PersonID = A.secretIdentity
---JOIN Cases C ON C.AgentID = A.AgentID
---GROUP BY
---P.name
---HAVING
---count(P.name) > 10;
---Problem 5
+
+-- Problem 5
 SELECT
     P.personId,
     P.name,
@@ -68,7 +58,7 @@ WHERE
     I.isCulprit = true
     AND C.locationId = P.locationId;
 
---Problem 6
+-- Problem 6
 SELECT
     P.personId,
     P.name,
@@ -80,7 +70,8 @@ FROM
 WHERE
     L.location = 'Selfoss';
 
---Problem 7 Not finished
+
+-- Problem 7
 SELECT
     PR.description,
     P.name
@@ -94,7 +85,8 @@ WHERE
     AND C.isClosed = FALSE;
 
 GROUP BY
-    --Problem 8 Not finished
+
+--Problem 8
 SELECT
     A.codename,
     G.gender,
@@ -106,7 +98,7 @@ FROM
 WHERE
     P.password LIKE CONCAT('%', A.codename, '%');
 
--- SELECT ...
+-- Problem 9
 SELECT
     P.PersonID,
     P.name
@@ -114,7 +106,9 @@ FROM
     People P
     JOIN InvolvedIn I ON P.PersonID = I.PersonID
     JOIN Cases C ON -- SELECT ...
-SELECT
-    10 as Query;
 
--- SELECT ...
+
+-- Problem 10
+
+
+
