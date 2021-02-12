@@ -1,0 +1,341 @@
+ query 
+-------
+     1
+(1 row)
+
+ locationid |       location       
+------------+----------------------
+         18 | Þórshöfn
+         57 | Þorlákshöfn
+         22 | Þingeyri
+         61 | Ólafsvík
+         32 | Ólafsfjörður
+         72 | Ísafjörður
+         14 | Vík
+         34 | Vopnafjörður
+         21 | Vogar
+         29 | Vestmannaeyjar
+          6 | Varmahlíð
+         69 | Tálknafjörður
+         63 | Súðavík
+         27 | Suðureyri
+         44 | Stöðvarfjörður
+         75 | Stykkishólmur
+         47 | Stokkseyri
+          7 | Skagaströnd
+         35 | Siglufjörður
+         87 | Seyðisfjörður
+         62 | Seltjarnarnes
+         33 | Selfoss
+         83 | Sauðarkrókur
+          2 | Sandgerði
+          8 | Reyðarfjörður
+         16 | Reykjavík
+         55 | Reykjahlíð
+          1 | Reykholt
+         73 | Raufarhöfn
+         88 | Patreksfjörður
+         31 | Norðurfjörður
+          4 | Njarðvík
+         49 | Neskaupstaður
+         77 | Mosfellsbær
+         84 | Mjóifjörður
+         65 | Laugarvatn
+          5 | Laugar
+         11 | Kópavogur
+          9 | Kópasker
+         38 | Króksfjarðarnes
+         89 | Kjörvogur
+         40 | Kirkjubæjarklaustur
+         76 | Keflavíkurflugvöllur
+         58 | Keflavík
+         90 | Húsavík
+         42 | Höfn
+         74 | Hólmavík
+         78 | Hvolsföllur
+         12 | Hveragerði
+         81 | Hvammstangi
+         67 | Hrísey
+         28 | Hofsós
+         52 | Hnífsdalur
+         50 | Hellissandur
+         60 | Hella
+         24 | Hallormsstaður
+          3 | Hafnir
+         10 | Hafnafjörður
+         17 | Grímsey
+         37 | Grundarfjörður
+         80 | Grindavík
+         68 | Grenivík
+         26 | Garður
+         66 | Garðabær
+         85 | Fáskrúðsfjörður
+         54 | Fosshóll
+         39 | Fljót
+         20 | Flateyri
+         82 | Flatey
+         41 | Finnbogastaðir
+         64 | Fagurhólsmýri
+         70 | Eyrabakki
+         45 | Eskifjörður
+         48 | Eiðar
+         19 | Egilsstaðir
+         71 | Drangsnes
+         46 | Djúpivogur
+         23 | Dalvík
+         13 | Búðardalur
+         53 | Bíldudalur
+         43 | Brú
+         36 | Breiðdalsvík
+         59 | Borgarnes
+         86 | Borgarfjörður
+         51 | Bolungarvík
+         56 | Blönduós
+         30 | Bessastaðahreppur
+         15 | Bakkafjörður
+         25 | Akureyri
+         79 | Akranes
+(90 rows)
+
+ query 
+-------
+     2
+(1 row)
+
+       location       
+----------------------
+ Akranes
+ Akureyri
+ Bakkafjörður
+ Bessastaðahreppur
+ Blönduós
+ Borgarfjörður
+ Breiðdalsvík
+ Brú
+ Bíldudalur
+ Búðardalur
+ Dalvík
+ Djúpivogur
+ Drangsnes
+ Eiðar
+ Eskifjörður
+ Eyrabakki
+ Fagurhólsmýri
+ Finnbogastaðir
+ Flatey
+ Flateyri
+ Fljót
+ Fosshóll
+ Fáskrúðsfjörður
+ Garðabær
+ Garður
+ Grenivík
+ Grindavík
+ Grundarfjörður
+ Grímsey
+ Hafnafjörður
+ Hafnir
+ Hallormsstaður
+ Hella
+ Hellissandur
+ Hnífsdalur
+ Hofsós
+ Hrísey
+ Hvammstangi
+ Hveragerði
+ Hvolsföllur
+ Hólmavík
+ Keflavík
+ Keflavíkurflugvöllur
+ Kirkjubæjarklaustur
+ Kjörvogur
+ Króksfjarðarnes
+ Kópasker
+ Kópavogur
+ Laugar
+ Laugarvatn
+ Mjóifjörður
+ Mosfellsbær
+ Neskaupstaður
+ Njarðvík
+ Norðurfjörður
+ Patreksfjörður
+ Reykholt
+ Reykjahlíð
+ Sandgerði
+ Selfoss
+ Seltjarnarnes
+ Seyðisfjörður
+ Siglufjörður
+ Skagaströnd
+ Stokkseyri
+ Stykkishólmur
+ Stöðvarfjörður
+ Suðureyri
+ Súðavík
+ Tálknafjörður
+ Varmahlíð
+ Vestmannaeyjar
+ Vogar
+ Vopnafjörður
+ Vík
+ Ísafjörður
+ Ólafsfjörður
+ Þingeyri
+ Þorlákshöfn
+(79 rows)
+
+ query 
+-------
+     3
+(1 row)
+
+ count 
+-------
+  4712
+(1 row)
+
+ query 
+-------
+     4
+(1 row)
+
+            name            
+----------------------------
+ Þengill Sigurhansson
+ Dagmar O. Benediktsdóttir
+ Sigmar Guðþórsson
+ Maríanna Stefánsdóttir
+ Linda Ólafsdóttir
+ Jónatan Guðþórsson
+ Rós Lúthersdóttir
+ Þór T. Hafþórsson
+ Kristvin Bogason
+ Sveinn Hárlaugsson
+ Petrína G. Sigurþórsdóttir
+ Halldóra Þ. Hermannsdóttir
+ Agnar Hlöðvarsson
+ Dúfa Gunnarsdóttir
+ Kristmann Theódórsson
+ Adolf Auðunsson
+ Hlynur Hagalínsson
+ Dagfinnur Ottósson
+ Sóley Úlfarsdóttir
+ Sólrún Bernódusdóttir
+ Karólína Stefánsdóttir
+ Lárus Þorgeirsson
+ Sævar Sigurgeirsson
+ Sighvatur Theodórsson
+ Eygló Bernódusdóttir
+ Óskar Pálsson
+ Aðalgeir Ögmundsson
+ Lena S. Albertsdóttir
+ Hallgerður Erlendsdóttir
+ Sylvía S. Pétursdóttir
+ Ólafía Bjarnadóttir
+ Valþór H. Pálmarsson
+ Númi Svafarsson
+ Oddný J. Agnarsdóttir
+ Matthías Antonsson
+ Rafn Hjörleifsson
+ Viktoría Jóhannsdóttir
+ Skafti Hjálmarsson
+ Vésteinn Guðmundarson
+ Þorbjörn P. Hárlaugsson
+ Jensína Þórólfsdóttir
+ Lilja Guðnadóttir
+ Garðar A. Steindórsson
+(43 rows)
+
+ query 
+-------
+     5
+(1 row)
+
+ personid |         name          |             title              
+----------+-----------------------+--------------------------------
+     5603 | Orri Leifsson         | The case of friends and aliens
+     9304 | Ingvi G. Guðbrandsson | The case of a beast
+     9989 | Aðalsteinn Sturluson  | Shaman in my school
+(3 rows)
+
+ query 
+-------
+     6
+(1 row)
+
+ personid |            name             | gender 
+----------+-----------------------------+--------
+      960 | Ólafía Erlendsdóttir        | Female
+     1090 | Vilmundína Bryndísardóttir  | Female
+     1929 | Hildigunnur Björgvinsdóttir | Female
+     2390 | Adolf Í. Árnason            | Male
+     6130 | Dýrfinna Þorsteinsdóttir    | Female
+     7024 | Ármann Aronsson             | Male
+     7053 | Dögg Hrafnsdóttir           | Female
+     7475 | Elína Pétursdóttir          | Female
+     7480 | Harpa Friðbjarnardóttir     | Female
+     8307 | Lóa Jónsdóttir              | Female
+(10 rows)
+
+ query 
+-------
+     7
+(1 row)
+
+ personid | name | description | numcases 
+----------+------+-------------+----------
+(0 rows)
+
+ query 
+-------
+     8
+(1 row)
+
+ codename  | gender |       password       
+-----------+--------+----------------------
+ Hammer    | Female | FooKHammer1Ahgh
+ Centurion | Male   | xas6eCenturioniciZie
+ Wings     | Male   | Pee1WingsNie1
+ Olympus   | Other  | di0phOlympusaS3Oc6
+ Cookie    | Male   | ENg7tCookieohxah
+ Duster    | Female | Oa4iepDusterhohmee
+ Lyric     | Female | ieYaiLyricz7mai
+ Rosebud   | Female | iiphRosebud8Tooj
+ Nurse     | Female | po1ENurseequia
+ Fox       | Male   | Boh3thFoxoo1xee
+ Lurker    | Male   | phochLurker7iex2B
+ Cookie    | Male   | es6eeCookieYu5oj
+ Demon     | Male   | si6giDemonto5Ab
+ Witch     | Male   | aip2OWitcholaeng
+ Bulldog   | Male   | TeeziBulldogejei2
+ Prince    | Other  | IehaiPrinceY7iec4
+ Whisper   | Male   | Ez9iWhisperephol
+ Eye       | Male   | ZequEyeeeph1
+ Bagpipe   | Other  | aike5BagpipeneiQu
+ Watchman  | Other  | Bee2yWatchmanee2gae
+(20 rows)
+
+ query 
+-------
+     9
+(1 row)
+
+ personid |          name          | hasbeenculprit 
+----------+------------------------+----------------
+     6174 | Þórðr Maríasson        | Not guilty
+     8417 | Krista Ingveldardóttir | Guilty
+(2 rows)
+
+ query 
+-------
+    10
+(1 row)
+
+ personid |          name           | gender | yearsSinceLastInvestigation 
+----------+-------------------------+--------+-----------------------------
+     1374 | Ása Ingólfsdóttir       | Female |                           1
+     2430 | Salóme P. Indriðadóttir | Female |                           3
+     6174 | Þórðr Maríasson         | Male   |                           3
+(3 rows)
+
