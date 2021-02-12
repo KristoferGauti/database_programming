@@ -117,9 +117,9 @@ FROM
     JOIN InvolvedIn I ON P.PersonID = I.PersonID
     JOIN Cases C ON I.CaseId = C.CaseId
     JOIN Locations L ON C.LocationId = L.LocationId
-GROUP BY I.isCulprit, P.PersonId
+GROUP BY I.isCulprit, P.PersonId, L.LocationId
 HAVING
-    COUNT(L.Location LIKE '%vogur') >= 2;    
+     L.Location LIKE '%vogur' AND COUNT(C.caseId) >= 2;    
 
 
 -- Problem 10
