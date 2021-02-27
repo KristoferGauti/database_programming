@@ -13,7 +13,7 @@ FROM
     JOIN Cases C ON I.CaseID = C.CaseID
     JOIN Locations L ON P.LocationId = L.LocationId
 WHERE
-    I.isCulprit = True AND LEFT(C.title, 1) = LEFT(L.location, 1) -- NEED TO DOUBLE CKECK THIS LATER
+    I.isCulprit = True AND LEFT(C.title, 1) = LEFT(L.location, 1); -- NEED TO DOUBLE CKECK THIS LATER
 
 
 SELECT 2 AS QUERY; 
@@ -21,7 +21,8 @@ SELECT 2 AS QUERY;
 -- identities of agents.
 
 SELECT
-    P.PersonID, P.name
+    P.PersonID, 
+    P.name
 FROM
     People P
     JOIN Genders G ON G.GenderID = P.GenderID
@@ -39,7 +40,7 @@ FROM
     JOIN Agents A ON A.AgentID = P.PersonID
     JOIN Genders G ON G.GenderID = P.GenderID
 WHERE
-    G.gender = 'Male'
+    G.gender = 'Male';
 
 
 SELECT 3 AS QUERY; 
@@ -61,7 +62,7 @@ FROM
     JOIN People P ON P.PersonID = A.AgentID
     JOIN InvolvedIn I ON I.PersonID = P.PersonID
 WHERE
-    I.isCulprit = True
+    I.isCulprit = True;
 
 -- OR
 
@@ -73,20 +74,27 @@ FROM
     JOIN Cases C ON C.AgentID = A.AgentID
     JOIN InvolvedIn I ON I.PersonID = P.PersonID
 WHERE
-    I.isCulprit = True
+    I.isCulprit = True;
 
 
 SELECT 4 AS QUERY; 
 --The codename and designation of agents who have a license to kill	or have led	cases	
 --in at least 5 different cities.
-
 SELECT 
-    A.codename, A.designation, A.killLicense
+    A.codename, 
+    A.designation, 
+    A.killLicense
 FROM
-    Agents A
+    Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Locations L ON C.locationId = L.locationId
 WHERE 
     A.killLicense = True
--- need to figure out the second part of the problem
+GROUP BY 
+    A.codename,
+    A.designation,
+    A.killLicense
+HAVING COUNT(DISTINCT L.location) >= 5;
 
 
 SELECT 5 AS QUERY; 
