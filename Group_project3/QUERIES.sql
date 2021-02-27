@@ -198,12 +198,11 @@ SELECT 10 AS QUERY;
 SELECT 
     C.caseId, 
     C.title, 
-    L.location,
-    A.agentId
+    L.location
 FROM 
     Cases C
     JOIN Locations L ON C.locationId = L.locationId
     JOIN InvolvedIn I ON C.caseId = I.caseId
-    JOIN Agents A ON I.agentId = A.agentId 
-WHERE A.agentId = null
+    JOIN People P ON P.personId = I.personId 
+WHERE P.personId = null
     
