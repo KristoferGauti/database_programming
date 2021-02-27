@@ -106,6 +106,20 @@ SELECT 6 AS QUERY;
 --The code name and designation of agents who lead one of the earliest cases in some	
 --location (by year), and have only lead cases in one other location (two locations total).
 
+SELECT
+    A.codename,
+    A.designation
+FROM
+    Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Locations L ON C.locationId = L.locationId
+GROUP BY 
+    A.codename,
+    A.designation,
+    C.year
+HAVING COUNT(L.location) = 2
+ORDER BY C.year ASC
+
 
 SELECT 7 AS QUERY; 
 --Show the ID, name and profession of People who have been involved in the most cases	
@@ -113,13 +127,83 @@ SELECT 7 AS QUERY;
 --the name of the location and a column called “secretly agent?” which contains 1 if the person	
 --is secretly an agent or 0 if the person is not an	agent. If you can print ‘yes’ and ‘no’ instead of	
 --1	and	0, all the better.
-
+SELECT 
+    P.personId,
+    P.name, 
+    PR.description 
+FROM 
+    People P 
+    JOIN Professions PR ON P.professionId = PR.professionId
+    JOIN InvolvedIn I ON P.personId = I.personId
+    JOIN Cases C ON I.caseId = C.caseId
+--Need some constraints in order to finish this problem
 
 SELECT 8 AS QUERY; 
 --The designation and codename of agents who have never led a case in “Akranes”
+SELECT 
+    A.designation, 
+    A.codename,
+    L.location
+FROM
+    Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Locations L ON C.locationId = L.locationId
+WHERE
+    L.location <> 'Akranes'
+
+--or another solution
+SELECT 
+    A.designation, 
+    A.codename,
+    L.location
+FROM
+    Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Locations L ON C.locationId = L.locationId
+
+EXCEPT
+
+SELECT 
+    A.designation, 
+    A.codename,
+    L.location
+FROM
+    Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Locations L ON C.locationId = L.locationId
+WHERE L.location = 'Akranes'
+
+
+
+
 
 SELECT 9 AS QUERY; 
 --Show the ID, title and location of all cases that have people involved of all genders.
+SELECT 
+    C.caseId,
+    C.title, 
+    L.location 
+    --all genders, does not matter to select G.gender whereas it says all genders
+FROM
+    Cases C
+    JOIN Locations L ON C.locationId = L.locationId
+    JOIN InvolvedIn I ON C.caseId = I.caseId
+    JOIN People P ON I.personId = P.personId
+
+
 
 SELECT 10 AS QUERY; 
 -- The ID, title and location of all cases that have no known people involved at all
+
+SELECT 
+    C.caseId, 
+    C.title, 
+    L.location,
+    A.agentId
+FROM 
+    Cases C
+    JOIN Locations L ON C.locationId = L.locationId
+    JOIN InvolvedIn I ON C.caseId = I.caseId
+    JOIN Agents A ON I.agentId = A.agentId 
+WHERE A.agentId = null
+    
