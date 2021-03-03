@@ -140,19 +140,17 @@ FROM
 
 SELECT 8 AS QUERY; 
 --The designation and codename of agents who have never led a case in “Akranes”
-SELECT * FROM Agents
 
-SELECT 
+SELECT
     A.designation, 
     A.codename
 FROM
     Agents A 
-    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Cases C ON A.AgentId = C.agentId
     JOIN Locations L ON C.locationId = L.locationId
-GROUP BY 
-    C.locationID, 
-    A.designation, 
-    A.codename
+GROUP BY
+    A.agentId
+
 EXCEPT
 
 SELECT 
@@ -160,16 +158,11 @@ SELECT
     A.codename
 FROM
     Agents A 
-    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Cases C ON A.AgentId = C.agentId
     JOIN Locations L ON C.locationId = L.locationId
 WHERE L.location = 'Akranes'
-GROUP BY 
-    C.locationID, 
-    A.designation, 
-    A.codename
-
-
-
+GROUP BY
+    A.agentId
 
 
 
