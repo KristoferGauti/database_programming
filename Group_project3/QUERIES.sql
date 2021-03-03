@@ -128,7 +128,6 @@ INNER JOIN (
 SELECT 6 AS QUERY; 
 --The code name and designation of agents who lead one of the earliest cases in some	
 --location (by year), and have only lead cases in one other location (two locations total).
-
 SELECT 
     A.codename,
     A.designation
