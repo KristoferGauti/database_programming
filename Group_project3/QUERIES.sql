@@ -100,6 +100,20 @@ HAVING COUNT(DISTINCT L.location) >= 5;
 SELECT 5 AS QUERY; 
 --The codename, secret identity name and designation of agents who have	closed more	
 --cases	in some town than some other agent.
+SELECT * FROM (
+SELECT 
+    A.codename, A.secretIdentity, L.location, COUNT(*)
+FROM
+    Agents A
+    JOIN Cases C ON C.AgentID = A.AgentID
+    JOIN Locations L ON L.LocationID = C.LocationID
+GROUP BY
+    A.codename, A.secretIdentity, L.location
+) as T
+GROUP BY T.location, T.codename, T.secretIdentity, T.count
+HAVING T.count = MAX(T.count)
+
+
 
 
 SELECT 6 AS QUERY; 
@@ -193,16 +207,21 @@ FROM
 
 
 SELECT 10 AS QUERY; 
--- The ID, title and location of all cases that have no known people involved at all
+-- The ID, title and location of all cases that have no known people 
+-- involved at all
 
-SELECT 
-    C.caseId, 
-    C.title, 
-    L.location
+
+SELECT
+    C.caseId, C.title, L.location
 FROM 
     Cases C
-    JOIN Locations L ON C.locationId = L.locationId
+    JOIN Locations L ON L.locationId = C.locationID
+
+EXCEPT
+
+SELECT
+    C.caseId, C.title, L.location
+FROM 
+    Cases C
     JOIN InvolvedIn I ON C.caseId = I.caseId
-    JOIN People P ON P.personId = I.personId 
-WHERE P.personId = null
-    
+    JOIN Locations L ON L.locationId = C.locationID
