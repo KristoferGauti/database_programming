@@ -52,7 +52,7 @@ SELECT
     A.codename
 FROM
     Agents A
-    JOIN Cases C ON C.AgentID = A.AgentID
+    JOIN Cases C ON C.AgentID = A.secretIdentity --A.secretIdentity or A.agentID??????????????
 
 INTERSECT
 
@@ -69,8 +69,7 @@ SELECT 4 AS QUERY;
 --in at least 5 different cities.
 SELECT 
     A.codename, 
-    A.designation, 
-    A.killLicense
+    A.designation
 FROM
     Agents A 
     JOIN Cases C ON A.agentId = C.agentId
@@ -79,14 +78,14 @@ WHERE
     A.killLicense = True
 GROUP BY 
     A.codename,
-    A.designation,
-    A.killLicense
+    A.designation
 HAVING COUNT(DISTINCT L.location) >= 5;
 
 
 SELECT 5 AS QUERY; 
---The codename, secret identity name and designation of agents who have	closed more	
---cases	in some town than some other agent.
+--The codename, secret identity name and designation of agents who have 
+--closed more cases in some town than some other agent. You can assume that 
+--only the agent that leads a case can close it.
 SELECT * FROM (
 SELECT 
     A.codename, A.secretIdentity, L.location, COUNT(*)
@@ -101,6 +100,30 @@ GROUP BY T.location, T.codename, T.secretIdentity, T.count
 HAVING T.count = MAX(T.count)
 
 
+--ulfur code
+SELECT LG.codename, LG.secretIdentity, LG.designation
+FROM (
+    SELECT L.*, A.*, COUNT(*) AS numClosedCases
+    FROM Cases AS C
+    INNER JOIN Agents    AS A ON C.AgentID    = A.AgentID
+    INNER JOIN Locations AS L ON C.LocationID = L.LocationID
+    WHERE C.isClosed = True
+    GROUP BY L.LocationID, A.AgentID
+) AS LG
+INNER JOIN (
+    SELECT LAG.LocationID, MIN(numClosedCases) AS minClosedCases
+    FROM (
+        SELECT L.*, A.*, COUNT(*) AS numClosedCases
+        FROM Cases AS C
+        INNER JOIN Agents    AS A ON C.AgentID    = A.AgentID
+        INNER JOIN Locations AS L ON C.LocationID = L.LocationID
+        WHERE C.isClosed = False
+        GROUP BY L.LocationID, A.AgentID
+    ) AS LAG -- Location/Agent Group
+    GROUP BY LAG.LocationID
+) AS LAG ON LG.LocationID = LAG.LocationID AND LG.numClosedCases > LAG.minClosedCases
+
+
 
 
 SELECT 6 AS QUERY; 
@@ -110,6 +133,7 @@ SELECT 6 AS QUERY;
 SELECT
     A.codename,
     A.designation
+    -- C.year
 FROM
     Agents A 
     JOIN Cases C ON A.agentId = C.agentId
@@ -119,7 +143,7 @@ GROUP BY
     A.designation,
     C.year
 HAVING COUNT(L.location) = 2
-ORDER BY C.year ASC
+-- ORDER BY C.year ASC
 
 
 SELECT 7 AS QUERY; 
@@ -131,13 +155,12 @@ SELECT 7 AS QUERY;
 SELECT 
     P.personId,
     P.name, 
-    PR.description 
+    PR.description
 FROM 
     People P 
     JOIN Professions PR ON P.professionId = PR.professionId
     JOIN InvolvedIn I ON P.personId = I.personId
     JOIN Cases C ON I.caseId = C.caseId
---Need some constraints in order to finish this problem
 
 SELECT 8 AS QUERY; 
 --The designation and codename of agents who have never led a case in “Akranes”
@@ -173,12 +196,15 @@ SELECT
     C.caseId,
     C.title, 
     L.location 
-    --all genders, does not matter to select G.gender whereas it says all genders
 FROM
     Cases C
     JOIN Locations L ON C.locationId = L.locationId
     JOIN InvolvedIn I ON C.caseId = I.caseId
     JOIN People P ON I.personId = P.personId
+GROUP BY
+    C.caseID,
+    L.location
+HAVING COUNT(DISTINCT P.genderID) = 3
 
 
 
