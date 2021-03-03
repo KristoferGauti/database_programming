@@ -77,7 +77,7 @@ HAVING A.killLicense = True OR COUNT(DISTINCT L.location) >= 5;
 SELECT 5 AS QUERY; 
 
 
-SELECT codename, secretIdentity, designation
+SELECT DISTINCT codename, secretIdentity, designation
 FROM
 (
     -- A table containg a row for each agent for each 
@@ -149,25 +149,40 @@ SELECT 7 AS QUERY;
 --is secretly an agent or 0 if the person is not an	agent. If you can print ‘yes’ and ‘no’ instead of	
 --1	and	0, all the better.
 
-SELECT * FROM Cases
 --3549 rows shall be returned
 --This is a garbage solution
-SELECT personId, name, CaseCount FROM (
-    SELECT
-        P.personId,
-        P.name, 
-        PR.description,
-        COUNT(L.locationId) AS CaseCount
-    FROM 
-        People P 
-        JOIN Professions PR ON P.professionId = PR.professionId
-        JOIN InvolvedIn I ON P.personId = I.personId
-        JOIN Cases C ON I.caseId = C.caseId
-        JOIN Locations L ON C.locationId = L.locationId
-    GROUP BY P.PersonId, PR.description
-    ORDER BY COUNT(L.locationId) DESC
-) AS a
+SELECT codename, secretIdentity, designation
+FROM
+(
+    -- A table containg a row for each agent for each 
+    -- location for each closed case
+    SELECT A.*,L.*, COUNT(*) numClosedCases
+    FROM Cases C
+    JOIN Locations L ON C.LocationID = L.LocationID
+    JOIN Agents A ON C.AgentID = A.AgentID
+    WHERE C.isClosed = True
+    GROUP BY  A.AgentID, L.LocationID
 
+) AS FULLTABLE,
+(
+    -- Create a table with the minimum number of closed cases for each location
+    SELECT FULLTABLE.locationID, MAX(FULLTABLE.numClosedCases) minClosedCases
+    FROM(
+            -- A table containg a row for each agent for each 
+            -- location for each closed case
+            SELECT A.*,L.*, COUNT(*) numClosedCases
+            FROM Cases C
+            JOIN Locations L ON C.LocationID = L.LocationID
+            JOIN Agents A ON C.AgentID = A.AgentID
+            WHERE C.isClosed = True
+            GROUP BY  A.AgentID, L.LocationID
+
+        ) AS FULLTABLE
+    GROUP BY FULLTABLE.locationId
+
+) AS MAXTABLE
+
+WHERE FULLTABLE.locationID = MAXTABLE.locationID AND FULLTABLE.numClosedCases = MAXTABLE.minClosedCases
 
 
 
