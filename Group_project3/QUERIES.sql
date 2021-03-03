@@ -1,8 +1,6 @@
 
 SELECT 1 AS QUERY 
---The PersonID, name, and case title of culprits that live in a location that starts with the	
---same letter as the place they committed their crime.
---385
+
 SELECT
     P.PersonID,
     P.name,
@@ -18,8 +16,6 @@ WHERE
 
 
 SELECT 2 AS QUERY; 
--- The PersonID and name of women who are culprits and of men who are secret	
--- identities of agents.
 
 SELECT
     P.PersonID, 
@@ -46,8 +42,6 @@ WHERE
 
 
 SELECT 3 AS QUERY; 
---Find the codenames of double-agents. A double	agent is one who is a culprit in a case	
---they lead.
 
 SELECT
     A.codename
@@ -66,8 +60,7 @@ WHERE
     I.isCulprit = True;
 
 SELECT 4 AS QUERY; 
---The codename and designation of agents who have a license to kill	or have led	cases	
---in at least 5 different cities.
+
 SELECT
     A.codename, 
     A.designation
@@ -82,52 +75,44 @@ HAVING A.killLicense = True OR COUNT(DISTINCT L.location) >= 5;
 
 
 SELECT 5 AS QUERY; 
---The codename, secret identity name and designation of agents who have 
---closed more cases in some town than some other agent. You can assume that 
---only the agent that leads a case can close it.
-SELECT * FROM (
-SELECT 
-    A.codename, A.secretIdentity, L.location, COUNT(*)
+
+
+SELECT codename, secretIdentity, designation
 FROM
-    Agents A
-    JOIN Cases C ON C.AgentID = A.AgentID
-    JOIN Locations L ON L.LocationID = C.LocationID
-GROUP BY
-    A.codename, A.secretIdentity, L.location
-) as T
-GROUP BY T.location, T.codename, T.secretIdentity, T.count
-HAVING T.count = MAX(T.count)
-
-
---ulfur code
-SELECT LG.codename, LG.secretIdentity, LG.designation
-FROM (
-    SELECT L.*, A.*, COUNT(*) AS numClosedCases
-    FROM Cases AS C
-    INNER JOIN Agents    AS A ON C.AgentID    = A.AgentID
-    INNER JOIN Locations AS L ON C.LocationID = L.LocationID
+(
+    -- A table containg a row for each agent for each 
+    -- location for each closed case
+    SELECT A.*,L.*, COUNT(*) numClosedCases
+    FROM Cases C
+    JOIN Locations L ON C.LocationID = L.LocationID
+    JOIN Agents A ON C.AgentID = A.AgentID
     WHERE C.isClosed = True
-    GROUP BY L.LocationID, A.AgentID
-) AS LG
-INNER JOIN (
-    SELECT LAG.LocationID, MIN(numClosedCases) AS minClosedCases
-    FROM (
-        SELECT L.*, A.*, COUNT(*) AS numClosedCases
-        FROM Cases AS C
-        INNER JOIN Agents    AS A ON C.AgentID    = A.AgentID
-        INNER JOIN Locations AS L ON C.LocationID = L.LocationID
-        WHERE C.isClosed = False
-        GROUP BY L.LocationID, A.AgentID
-    ) AS LAG -- Location/Agent Group
-    GROUP BY LAG.LocationID
-) AS LAG ON LG.LocationID = LAG.LocationID AND LG.numClosedCases > LAG.minClosedCases
+    GROUP BY  A.AgentID, L.LocationID
 
+) AS FULLTABLE,
+(
+    -- Create a table with the minimum number of closed cases for each location
+    SELECT FULLTABLE.locationID, MIN(FULLTABLE.numClosedCases) minClosedCases
+    FROM(
+            -- A table containg a row for each agent for each 
+            -- location for each closed case
+            SELECT A.*,L.*, COUNT(*) numClosedCases
+            FROM Cases C
+            JOIN Locations L ON C.LocationID = L.LocationID
+            JOIN Agents A ON C.AgentID = A.AgentID
+            WHERE C.isClosed = True
+            GROUP BY  A.AgentID, L.LocationID
 
+        ) AS FULLTABLE
+    GROUP BY FULLTABLE.locationId
+    
+) AS MINTABLE
+
+WHERE FULLTABLE.locationID = MINTABLE.locationID AND FULLTABLE.numClosedCases > MINTABLE.minClosedCases
 
 
 SELECT 6 AS QUERY; 
---The code name and designation of agents who lead one of the earliest cases in some	
---location (by year), and have only lead cases in one other location (two locations total).
+
 SELECT 
     A.codename,
     A.designation
@@ -170,7 +155,6 @@ SELECT personId, name, CaseCount FROM (
 
 
 SELECT 8 AS QUERY; 
---The designation and codename of agents who have never led a case in “Akranes”
 
 SELECT 
     A.designation, 
@@ -198,7 +182,7 @@ GROUP BY
 
 
 SELECT 9 AS QUERY; 
---Show the ID, title and location of all cases that have people involved of all genders.
+
 SELECT 
     C.caseId,
     C.title, 
@@ -216,9 +200,6 @@ HAVING COUNT(DISTINCT P.genderID) = 3
 
 
 SELECT 10 AS QUERY; 
--- The ID, title and location of all cases that have no known people 
--- involved at all
-
 
 SELECT
     C.caseId, C.title, L.location
