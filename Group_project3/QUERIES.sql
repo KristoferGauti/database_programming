@@ -34,7 +34,8 @@ UNION
 -- expecting that "men who are secret identities of agents." means
 -- names of men who are agents
 SELECT
-    P.PersonID, P.name
+    P.PersonID, 
+    P.name
 FROM
     People P
     JOIN Agents A ON A.AgentID = P.PersonID
@@ -141,7 +142,7 @@ FROM
 SELECT 8 AS QUERY; 
 --The designation and codename of agents who have never led a case in “Akranes”
 
-SELECT
+SELECT 
     A.designation, 
     A.codename
 FROM
