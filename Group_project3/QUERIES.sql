@@ -59,23 +59,9 @@ SELECT
     A.codename
 FROM
     Agents A
-    JOIN People P ON P.PersonID = A.AgentID
-    JOIN InvolvedIn I ON I.PersonID = P.PersonID
+    JOIN InvolvedIn I ON I.PersonID = A.secretIdentity
 WHERE
     I.isCulprit = True;
-
--- OR
-
-SELECT DISTINCT
-    P.name
-FROM
-    Agents A
-    JOIN People P ON P.PersonID = A.AgentID
-    JOIN Cases C ON C.AgentID = A.AgentID
-    JOIN InvolvedIn I ON I.PersonID = P.PersonID
-WHERE
-    I.isCulprit = True;
-
 
 SELECT 4 AS QUERY; 
 --The codename and designation of agents who have a license to kill	or have led	cases	
@@ -154,38 +140,34 @@ FROM
 
 SELECT 8 AS QUERY; 
 --The designation and codename of agents who have never led a case in “Akranes”
+SELECT * FROM Agents
+
 SELECT 
     A.designation, 
-    A.codename,
-    L.location
+    A.codename
 FROM
     Agents A 
     JOIN Cases C ON A.agentId = C.agentId
     JOIN Locations L ON C.locationId = L.locationId
-WHERE
-    L.location <> 'Akranes'
-
---or another solution
-SELECT 
+GROUP BY 
+    C.locationID, 
     A.designation, 
-    A.codename,
-    L.location
-FROM
-    Agents A 
-    JOIN Cases C ON A.agentId = C.agentId
-    JOIN Locations L ON C.locationId = L.locationId
-
+    A.codename
 EXCEPT
 
 SELECT 
     A.designation, 
-    A.codename,
-    L.location
+    A.codename
 FROM
     Agents A 
     JOIN Cases C ON A.agentId = C.agentId
     JOIN Locations L ON C.locationId = L.locationId
 WHERE L.location = 'Akranes'
+GROUP BY 
+    C.locationID, 
+    A.designation, 
+    A.codename
+
 
 
 
