@@ -129,20 +129,16 @@ SELECT 6 AS QUERY;
 --The code name and designation of agents who lead one of the earliest cases in some	
 --location (by year), and have only lead cases in one other location (two locations total).
 
-SELECT
+SELECT 
     A.codename,
     A.designation
-    -- C.year
 FROM
     Agents A 
     JOIN Cases C ON A.agentId = C.agentId
     JOIN Locations L ON C.locationId = L.locationId
 GROUP BY 
-    A.codename,
-    A.designation,
-    C.year
+    A.AgentId
 HAVING COUNT(L.location) = 2
--- ORDER BY C.year ASC
 
 
 SELECT 7 AS QUERY; 
@@ -153,20 +149,24 @@ SELECT 7 AS QUERY;
 --1	and	0, all the better.
 
 SELECT * FROM Cases
+--3549 rows shall be returned
+--This is a garbage solution
+SELECT personId, name, CaseCount FROM (
+    SELECT
+        P.personId,
+        P.name, 
+        PR.description,
+        COUNT(L.locationId) AS CaseCount
+    FROM 
+        People P 
+        JOIN Professions PR ON P.professionId = PR.professionId
+        JOIN InvolvedIn I ON P.personId = I.personId
+        JOIN Cases C ON I.caseId = C.caseId
+        JOIN Locations L ON C.locationId = L.locationId
+    GROUP BY P.PersonId, PR.description
+    ORDER BY COUNT(L.locationId) DESC
+) AS a
 
-SELECT
-    P.personId,
-    P.name, 
-    PR.description,
-    COUNT(L.locationId) AS CaseCount
-FROM 
-    People P 
-    JOIN Professions PR ON P.professionId = PR.professionId
-    JOIN InvolvedIn I ON P.personId = I.personId
-    JOIN Cases C ON I.caseId = C.caseId
-    JOIN Locations L ON C.locationId = L.locationId
-GROUP BY P.PersonId, PR.description
-ORDER BY COUNT(L.locationId) DESC
 
 
 
