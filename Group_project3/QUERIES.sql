@@ -105,13 +105,30 @@ FROM
 
         ) AS FULLTABLE
     GROUP BY FULLTABLE.locationId
-    
+
 ) AS MINTABLE
 
 WHERE FULLTABLE.locationID = MINTABLE.locationID AND FULLTABLE.numClosedCases > MINTABLE.minClosedCases
 
 
 SELECT 6 AS QUERY; 
+--The code name and designation of agents who 
+--lead one of the earliest cases in some	
+--location (by year), and have only lead cases in 
+--one other location (two locations total).
+
+SELECT 
+    A.codename,
+    A.designation
+FROM
+Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    JOIN Locations L ON C.locationId = L.locationId
+GROUP BY 
+    A.agentId, C.year
+HAVING C.year = (SELECT MIN(year) FROM Cases)
+
+INTERSECT
 
 SELECT 
     A.codename,
