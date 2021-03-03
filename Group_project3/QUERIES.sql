@@ -12,7 +12,7 @@ FROM
     JOIN Cases C ON I.CaseID = C.CaseID
     JOIN Locations L ON C.LocationID = L.LocationID
 WHERE
-    I.isCulprit AND LEFT(LiveL.location, 1) = LEFT(L.location, 1);
+    I.isCulprit = True AND LEFT(LiveL.location, 1) = LEFT(L.location, 1);
 
 
 SELECT 2 AS QUERY; 
@@ -149,7 +149,8 @@ SELECT 7 AS QUERY;
 --is secretly an agent or 0 if the person is not an	agent. If you can print ‘yes’ and ‘no’ instead of	
 --1	and	0, all the better.
 
---3549 rows shall be returned
+SELECT * FROM Cases
+--4330 rows shall be returned
 --This is a garbage solution
 SELECT codename, secretIdentity, designation
 FROM
@@ -247,3 +248,59 @@ FROM
     Cases C
     JOIN InvolvedIn I ON C.caseId = I.caseId
     JOIN Locations L ON L.locationId = C.locationID
+
+
+SELECT 'BONUS' AS QUERY
+--Find the hidden message in the Passwords table on the live
+--database server. 
+--1) Take the fifth letter of each password of
+--agents whose secret identities live in a fictional town 
+--2) Followed by the third letter of the password of all the agents 
+--that are neither male nor female except those whose codename 
+--contains at least three different vowels (aeiou). 
+--3) Return the result as a single string. Submit your query, as well as the 
+--secret message as a comment. Note that for both parts of the 
+--query the results should be ordered by AgentID.
+
+
+
+SELECT 
+    SUBSTRING(Pass.password, 5, 1)
+FROM 
+    People P
+    JOIN Agents A ON P.personId = A.secretIdentity
+    JOIN Passwords Pass ON A.agentId = Pass.agentId
+    JOIN Locations L ON P.locationId = L.locationId
+WHERE 
+    L.location = 'Gervivogur'
+GROUP BY A.agentId, Pass.password
+
+
+SELECT 
+    SUBSTRING(Pass.password, 3, 1)
+FROM 
+    People P
+    JOIN Agents A ON P.personId = A.secretIdentity
+    JOIN Passwords Pass ON A.agentId = Pass.agentId
+    JOIN Genders G ON P.genderId = G.genderId
+WHERE 
+    G.gender = 'Other'
+GROUP BY A.codename, Pass.agentId 
+
+UNION
+
+SELECT 
+    SUBSTRING(Pass.password, 3, 1)
+FROM 
+    Passwords Pass
+    JOIN Agents A ON A.AgentId = Pass.agentId
+WHERE
+    CASE WHEN A.codename LIKE '%a%' THEN 1 ELSE 0 END +
+    CASE WHEN A.codename LIKE '%e%' THEN 1 ELSE 0 END +
+    CASE WHEN A.codename LIKE '%i%' THEN 1 ELSE 0 END +
+    CASE WHEN A.codename LIKE '%o%' THEN 1 ELSE 0 END +
+    CASE WHEN A.codename LIKE '%u%' THEN 1 ELSE 0 END
+>= 3 
+
+
+
