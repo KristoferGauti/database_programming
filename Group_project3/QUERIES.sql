@@ -2,18 +2,19 @@
 SELECT 1 AS QUERY 
 --The PersonID, name, and case title of culprits that live in a location that starts with the	
 --same letter as the place they committed their crime.
-
+--385
 SELECT
-    DISTINCT P.PersonID,
+    P.PersonID,
     P.name,
     C.title
 FROM
     People P
+    JOIN Locations LiveL ON P.locationID = LiveL.locationID
     JOIN InvolvedIn I ON I.PersonID = P.PersonID
     JOIN Cases C ON I.CaseID = C.CaseID
-    JOIN Locations L ON P.LocationId = L.LocationId
+    JOIN Locations L ON C.LocationID = L.LocationID
 WHERE
-    I.isCulprit = True AND LEFT(C.title, 1) = LEFT(L.location, 1); -- NEED TO DOUBLE CKECK THIS LATER
+    I.isCulprit AND LEFT(LiveL.location, 1) = LEFT(L.location, 1);
 
 
 SELECT 2 AS QUERY; 
@@ -67,19 +68,17 @@ WHERE
 SELECT 4 AS QUERY; 
 --The codename and designation of agents who have a license to kill	or have led	cases	
 --in at least 5 different cities.
-SELECT 
+SELECT
     A.codename, 
     A.designation
 FROM
     Agents A 
     JOIN Cases C ON A.agentId = C.agentId
     JOIN Locations L ON C.locationId = L.locationId
-WHERE 
-    A.killLicense = True
 GROUP BY 
-    A.codename,
-    A.designation
-HAVING COUNT(DISTINCT L.location) >= 5;
+    A.AgentID
+HAVING A.killLicense = True OR COUNT(DISTINCT L.location) >= 5;
+
 
 
 SELECT 5 AS QUERY; 
@@ -152,15 +151,24 @@ SELECT 7 AS QUERY;
 --the name of the location and a column called “secretly agent?” which contains 1 if the person	
 --is secretly an agent or 0 if the person is not an	agent. If you can print ‘yes’ and ‘no’ instead of	
 --1	and	0, all the better.
-SELECT 
+
+SELECT * FROM Cases
+
+SELECT
     P.personId,
     P.name, 
-    PR.description
+    PR.description,
+    COUNT(L.locationId) AS CaseCount
 FROM 
     People P 
     JOIN Professions PR ON P.professionId = PR.professionId
     JOIN InvolvedIn I ON P.personId = I.personId
     JOIN Cases C ON I.caseId = C.caseId
+    JOIN Locations L ON C.locationId = L.locationId
+GROUP BY P.PersonId, PR.description
+ORDER BY COUNT(L.locationId) DESC
+
+
 
 SELECT 8 AS QUERY; 
 --The designation and codename of agents who have never led a case in “Akranes”
