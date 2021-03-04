@@ -1,5 +1,5 @@
 
-SELECT 1 AS QUERY 
+SELECT 1 AS QUERY; 
 
 SELECT
     P.PersonID,
@@ -108,7 +108,7 @@ FROM
 
 ) AS MINTABLE
 
-WHERE FULLTABLE.locationID = MINTABLE.locationID AND FULLTABLE.numClosedCases > MINTABLE.minClosedCases
+WHERE FULLTABLE.locationID = MINTABLE.locationID AND FULLTABLE.numClosedCases > MINTABLE.minClosedCases;
 
 
 SELECT 6 AS QUERY; 
@@ -139,19 +139,12 @@ FROM
     JOIN Locations L ON C.locationId = L.locationId
 GROUP BY 
     A.AgentId
-HAVING COUNT(L.location) = 2
+HAVING COUNT(L.location) = 2;
 
 
 SELECT 7 AS QUERY; 
---Show the ID, name and profession of People who have been involved in the most cases	
---in each location, along with the number of cases they have been involved in for that location,	
---the name of the location and a column called “secretly agent?” which contains 1 if the person	
---is secretly an agent or 0 if the person is not an	agent. If you can print ‘yes’ and ‘no’ instead of	
---1	and	0, all the better.
 
-SELECT * FROM Cases
---4330 rows shall be returned
---This is a garbage solution
+--Manage to locate people but did not displayy the correct information
 SELECT codename, secretIdentity, designation
 FROM
 (
@@ -183,7 +176,7 @@ FROM
 
 ) AS MAXTABLE
 
-WHERE FULLTABLE.locationID = MAXTABLE.locationID AND FULLTABLE.numClosedCases = MAXTABLE.minClosedCases
+WHERE FULLTABLE.locationID = MAXTABLE.locationID AND FULLTABLE.numClosedCases = MAXTABLE.minClosedCases;
 
 
 
@@ -210,7 +203,7 @@ FROM
     JOIN Locations L ON C.locationId = L.locationId
 WHERE L.location = 'Akranes'
 GROUP BY
-    A.agentId
+    A.agentId;
 
 
 
@@ -228,7 +221,7 @@ FROM
 GROUP BY
     C.caseID,
     L.location
-HAVING COUNT(DISTINCT P.genderID) = 3
+HAVING COUNT(DISTINCT P.genderID) = 3;
 
 
 
@@ -247,10 +240,10 @@ SELECT
 FROM 
     Cases C
     JOIN InvolvedIn I ON C.caseId = I.caseId
-    JOIN Locations L ON L.locationId = C.locationID
+    JOIN Locations L ON L.locationId = C.locationID;
 
 
-SELECT 'BONUS' AS QUERY
+SELECT 'BONUS' AS QUERY;
 --Find the hidden message in the Passwords table on the live
 --database server. 
 --1) Take the fifth letter of each password of
@@ -273,7 +266,7 @@ FROM
     JOIN Locations L ON P.locationId = L.locationId
 WHERE 
     L.location = 'Gervivogur'
-GROUP BY A.agentId, Pass.password
+GROUP BY A.agentId, Pass.password;
 
 
 SELECT 
@@ -300,7 +293,7 @@ WHERE
     CASE WHEN A.codename LIKE '%i%' THEN 1 ELSE 0 END +
     CASE WHEN A.codename LIKE '%o%' THEN 1 ELSE 0 END +
     CASE WHEN A.codename LIKE '%u%' THEN 1 ELSE 0 END
->= 3 
+>= 3; 
 
 
 
