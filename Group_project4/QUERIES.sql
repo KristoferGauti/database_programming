@@ -4,19 +4,22 @@ SELECT 1 AS QUERY;
 SELECT 2 AS QUERY;
 --DROP VIEW TopSuspects;
 
-CREATE VIEW TopSuspects(personId, personName, personLocation, numOfCases) AS
-    SELECT P.personId, P.name, L.location, COUNT(C.isClosed)
+CREATE OR REPLACE VIEW subTopSuspects(personId, personName, personLocation, numOfCases) AS
+    SELECT P.personId, P.name, L.location, COUNT(P.personId)
     FROM People P
         JOIN Locations L ON P.locationId = L.locationId
         JOIN InvolvedIn I ON P.personId = I.personId 
         JOIN Cases C ON C.caseId = I.caseId
-    GROUP BY C.isClosed, P.personId, L.locationId
+    GROUP BY P.personId, L.locationId
     HAVING L.location = 'Stokkseyri';
 
-SELECT personId, personName, personLocation
-FROM TopSuspects
-ORDER BY numOfCases DESC
-LIMIT 3;
+CREATE OR REPLACE VIEW topThreeSuspects(personId, personName, personLocation) AS
+    SELECT personId, personName, personLocation
+    FROM subTopSuspects
+    ORDER BY numOfCases DESC
+    LIMIT 3;
+
+SELECT * FROM topThreeSuspects;
 
 
 
