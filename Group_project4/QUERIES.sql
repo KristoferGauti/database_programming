@@ -81,6 +81,22 @@ FROM
 SELECT
     3 AS QUERY;
 
+--Still need to check about this statement
+--Each person can only have at most one  nemesis,  
+--and  that  is  the  agent  that  has  busted  them
+--most  often.  Agents  can  have multiple nemeses however.
+SELECT 
+    A.agentId, 
+    A.codename, 
+    P.personId, 
+    P.name
+FROM
+    Agents A
+    JOIN InvolvedIn I ON A.agentId = I.agentId
+    JOIN People P ON P.personId = I.personId
+GROUP BY P.personId, A.agentId
+HAVING COUNT(I.isCulprit) > 1;
+
 SELECT
     4 AS QUERY;
 
