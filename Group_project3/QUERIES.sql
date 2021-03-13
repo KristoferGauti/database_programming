@@ -152,13 +152,8 @@ HAVING COUNT(L.location) = 2;
 
 SELECT 7 AS QUERY; 
 
-<<<<<<< HEAD
 -- Managed to locate the people but not to display the information
 SELECT DISTINCT codename, secretIdentity, designation
-=======
---Manage to locate people but did not displayy the correct information
-SELECT codename, secretIdentity, designation
->>>>>>> 983f617ade632eb09e9aab259e97c2c322862772
 FROM
 (
     -- A table containg a row for each agent for each 
@@ -271,9 +266,6 @@ SELECT
 FROM 
     Cases C
     JOIN InvolvedIn I ON C.caseId = I.caseId
-<<<<<<< HEAD
-    JOIN Locations L ON L.locationId = C.locationID
-=======
     JOIN Locations L ON L.locationId = C.locationID;
 
 
@@ -331,4 +323,3 @@ WHERE
 
 
 
->>>>>>> 983f617ade632eb09e9aab259e97c2c322862772
