@@ -1,49 +1,103 @@
 SELECT 1 AS QUERY;
 
+-- Almost finished, only need to figure out how to return a array
+CREATE OR REPLACE VIEW NumOfCases AS
+SELECT
+    A.codename,
+    A.status,
+    COUNT(A.codename) AS caseCount,
+    mostCommonLocation(A.AgentID)
+FROM
+    Agents A
+    JOIN Cases C ON A.AgentID = C.AgentID
+GROUP BY
+    A.AgentID 
+    
 
-SELECT 2 AS QUERY;
+CREATE OR REPLACE FUNCTION mostCommonLocation(agent_ID int) 
+RETURNS TABLE(location VARCHAR(255)) 
+LANGUAGE SQL AS $$
+SELECT
+    location
+from
+    (
+        SELECT
+            L.location,
+            COUNT(L.locationId) as LocationCount
+        FROM
+            Agents A
+            JOIN Cases C ON A.agentID = C.agentID
+            JOIN Locations L ON C.locationId = L.locationId
+        WHERE
+            A.agentID = agent_ID
+        GROUP BY
+            L.location
+        ORDER BY
+            LocationCount DESC
+        LIMIT 1
+    ) as LocationAndCount $$;
+
+
+SELECT
+    2 AS QUERY;
+
 --DROP VIEW TopSuspects;
+CREATE
+OR REPLACE VIEW subTopSuspects(personId, personName, personLocation, numOfCases) AS
+SELECT
+    P.personId,
+    P.name,
+    L.location,
+    COUNT(P.personId)
+FROM
+    People P
+    JOIN Locations L ON P.locationId = L.locationId
+    JOIN InvolvedIn I ON P.personId = I.personId
+    JOIN Cases C ON C.caseId = I.caseId
+GROUP BY
+    P.personId,
+    L.locationId
+HAVING
+    L.location = 'Stokkseyri';
 
-CREATE OR REPLACE VIEW subTopSuspects(personId, personName, personLocation, numOfCases) AS
-    SELECT P.personId, P.name, L.location, COUNT(P.personId)
-    FROM People P
-        JOIN Locations L ON P.locationId = L.locationId
-        JOIN InvolvedIn I ON P.personId = I.personId 
-        JOIN Cases C ON C.caseId = I.caseId
-    GROUP BY P.personId, L.locationId
-    HAVING L.location = 'Stokkseyri';
+CREATE
+OR REPLACE VIEW topThreeSuspects(personId, personName, personLocation) AS
+SELECT
+    personId,
+    personName,
+    personLocation
+FROM
+    subTopSuspects
+ORDER BY
+    numOfCases DESC
+LIMIT
+    3;
 
-CREATE OR REPLACE VIEW topThreeSuspects(personId, personName, personLocation) AS
-    SELECT personId, personName, personLocation
-    FROM subTopSuspects
-    ORDER BY numOfCases DESC
-    LIMIT 3;
+SELECT
+    *
+FROM
+    topThreeSuspects;
 
-SELECT * FROM topThreeSuspects;
+SELECT
+    3 AS QUERY;
 
+SELECT
+    4 AS QUERY;
 
+SELECT
+    5 AS QUERY;
 
-SELECT 3 AS QUERY;
+SELECT
+    6 AS QUERY;
 
+SELECT
+    7 AS QUERY;
 
-SELECT 4 AS QUERY;
+SELECT
+    8 AS QUERY;
 
+SELECT
+    9 AS QUERY;
 
-SELECT 5 AS QUERY;
-
-
-SELECT 6 AS QUERY;
-
-
-SELECT 7 AS QUERY;
-
-
-SELECT 8 AS QUERY;
-
-
-SELECT 9 AS QUERY;
-
-
-SELECT 10 AS QUERY;
-
-
+SELECT
+    10 AS QUERY;
