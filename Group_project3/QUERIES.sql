@@ -12,7 +12,7 @@ FROM
     JOIN Cases C ON I.CaseID = C.CaseID
     JOIN Locations L ON C.LocationID = L.LocationID
 WHERE
-    I.isCulprit = True AND LEFT(LiveL.location, 1) = LEFT(L.location, 1);
+    I.isCulprit AND LEFT(LiveL.location, 1) = LEFT(L.location, 1);
 
 
 SELECT 2 AS QUERY; 
@@ -82,10 +82,14 @@ FROM
 (
     -- A table containg a row for each agent for each 
     -- location for each closed case
-    SELECT A.*,L.*, COUNT(*) numClosedCases
-    FROM Cases C
-    JOIN Locations L ON C.LocationID = L.LocationID
-    JOIN Agents A ON C.AgentID = A.AgentID
+    SELECT 
+        A.*,
+        L.*, 
+        COUNT(*) numClosedCases
+    FROM 
+        Cases C
+        JOIN Locations L ON C.LocationID = L.LocationID
+        JOIN Agents A ON C.AgentID = A.AgentID
     WHERE C.isClosed = True
     GROUP BY  A.AgentID, L.LocationID
 
@@ -96,10 +100,14 @@ FROM
     FROM(
             -- A table containg a row for each agent for each 
             -- location for each closed case
-            SELECT A.*,L.*, COUNT(*) numClosedCases
-            FROM Cases C
-            JOIN Locations L ON C.LocationID = L.LocationID
-            JOIN Agents A ON C.AgentID = A.AgentID
+            SELECT 
+                A.*,
+                L.*, 
+                COUNT(*) numClosedCases
+            FROM 
+                Cases C
+                JOIN Locations L ON C.LocationID = L.LocationID
+                JOIN Agents A ON C.AgentID = A.AgentID
             WHERE C.isClosed = True
             GROUP BY  A.AgentID, L.LocationID
 
@@ -144,16 +152,20 @@ HAVING COUNT(L.location) = 2;
 
 SELECT 7 AS QUERY; 
 
---Manage to locate people but did not displayy the correct information
-SELECT codename, secretIdentity, designation
+-- Managed to locate the people but not to display the information
+SELECT DISTINCT codename, secretIdentity, designation
 FROM
 (
     -- A table containg a row for each agent for each 
     -- location for each closed case
-    SELECT A.*,L.*, COUNT(*) numClosedCases
-    FROM Cases C
-    JOIN Locations L ON C.LocationID = L.LocationID
-    JOIN Agents A ON C.AgentID = A.AgentID
+    SELECT 
+        A.*,
+        L.*, 
+        COUNT(*) numClosedCases
+    FROM 
+        Cases C
+        JOIN Locations L ON C.LocationID = L.LocationID
+        JOIN Agents A ON C.AgentID = A.AgentID
     WHERE C.isClosed = True
     GROUP BY  A.AgentID, L.LocationID
 
@@ -164,19 +176,33 @@ FROM
     FROM(
             -- A table containg a row for each agent for each 
             -- location for each closed case
-            SELECT A.*,L.*, COUNT(*) numClosedCases
-            FROM Cases C
-            JOIN Locations L ON C.LocationID = L.LocationID
-            JOIN Agents A ON C.AgentID = A.AgentID
+            SELECT 
+                A.*,
+                L.*, 
+                COUNT(*) numClosedCases
+            FROM 
+                Cases C
+                JOIN Locations L ON C.LocationID = L.LocationID
+                JOIN Agents A ON C.AgentID = A.AgentID
             WHERE C.isClosed = True
             GROUP BY  A.AgentID, L.LocationID
 
         ) AS FULLTABLE
     GROUP BY FULLTABLE.locationId
 
-) AS MAXTABLE
+) AS MINTABLE
 
+WHERE FULLTABLE.locationID = MINTABLE.locationID AND FULLTABLE.numClosedCases = MINTABLE.minClosedCases
+
+
+
+
+
+
+<<<<<<< HEAD
+=======
 WHERE FULLTABLE.locationID = MAXTABLE.locationID AND FULLTABLE.numClosedCases = MAXTABLE.minClosedCases;
+>>>>>>> 983f617ade632eb09e9aab259e97c2c322862772
 
 
 
