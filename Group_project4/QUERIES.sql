@@ -100,6 +100,43 @@ HAVING COUNT(I.isCulprit) > 1;
 SELECT
     4 AS QUERY;
 
+CREATE OR REPLACE PROCEDURE insertPerson(
+    professionDescription VARCHAR(255),
+    gender VARCHAR(255),
+    location VARCHAR(255),
+    caseCount INTEGER,
+    name VARCHAR(255),
+    profId INTEGER,
+    genderId INTEGER,
+    locationId INTEGER)
+LANGUAGE SQL
+AS $$
+    INSERT INTO Professions(description)
+    VALUES (ProfessionDescription);
+    INSERT INTO Genders(genderId, gender)
+    VALUES (default, gender);
+    INSERT INTO Locations(location, caseCount)
+    VALUES (location, caseCount);
+    INSERT INTO People (personId, name, professionId, genderId, locationId) 
+    VALUES (default, name, profId, genderId, locationId);
+$$;
+
+CALL insertPerson(
+    'Software Engineer', 
+    'Male', 
+    'Shanghai CHINA',
+    1000,
+    'Kristofer', 
+    2511,
+    2,
+    91);
+
+SELECT * FROM People P
+WHERE P.name = 'Kristofer';
+
+-- DELETE FROM People P
+-- WHERE P.name = 'Kristofer'
+
 SELECT
     5 AS QUERY;
 
