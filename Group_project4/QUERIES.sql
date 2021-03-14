@@ -84,24 +84,27 @@ SELECT
 FROM
     topThreeSuspects;
 
-SELECT
+
+SELECT 
     3 AS QUERY;
 
---Still need to check about this statement
---Each person can only have at most one  nemesis,  
---and  that  is  the  agent  that  has  busted  them
---most  often.  Agents  can  have multiple nemeses however.
+CREATE OR REPLACE VIEW Nemeses(AgentID, Codename, PersonID, Name) AS
 SELECT 
-    A.agentId, 
-    A.codename, 
-    P.personId, 
-    P.name
-FROM
-    Agents A
-    JOIN InvolvedIn I ON A.agentId = I.agentId
-    JOIN People P ON P.personId = I.personId
-GROUP BY P.personId, A.agentId
-HAVING COUNT(I.isCulprit) > 1;
+    agentid, codename, personid, name
+FROM 
+    (
+    SELECT A.agentID, A.codename, P.personId, P.name, COUNT(*) as culpritCount
+    FROM Agents A
+        JOIN Cases C ON A.agentID = C.agentID
+        JOIN InvolvedIn I ON C.caseId = I.caseId
+        JOIN People P ON P.personId = I.personId
+    WHERE
+        I.isCulprit = true
+    GROUP BY
+        A.agentID, P.personId
+    ) as CulpritCoutTable
+WHERE 
+    CulpritCoutTable.culpritCount > 1
 
 SELECT
     4 AS QUERY;
@@ -156,6 +159,16 @@ ROLLBACK;
 
 SELECT
     5 AS QUERY;
+
+SELECT * FROM Cases
+
+SELECT C.locationId, COUNT(*)
+FROM Cases C
+    JOIN Locations L ON C.locationId = L.locationId
+GROUP BY C.locationId
+
+
+CREATE FUNCTION caseCountFixer()
 
 SELECT
     6 AS QUERY;
