@@ -1,3 +1,4 @@
+---------------------------- 1 ----------------------------
 SELECT 1 AS QUERY;
 
 -- Almost finished, only need to figure out how to return a array
@@ -37,15 +38,9 @@ from
         --LIMIT 1
     ) as LocationAndCount $$;
 IF tie(LocationAndCount)
-END IF;
 
-CREATE OR REPLACE FUNCTION tie(t TABLE);
-
-
-SELECT * FROM numOfCases;
-
-SELECT
-    2 AS QUERY;
+---------------------------- 2 ----------------------------
+SELECT 2 AS QUERY;
 
 --DROP VIEW TopSuspects;
 CREATE
@@ -84,9 +79,8 @@ SELECT
 FROM
     topThreeSuspects;
 
-
-SELECT 
-    3 AS QUERY;
+---------------------------- 3 ----------------------------
+SELECT 3 AS QUERY;
 
 CREATE OR REPLACE VIEW Nemeses(AgentID, Codename, PersonID, Name) AS
 SELECT 
@@ -108,8 +102,9 @@ WHERE
 
 SELECT * FROM Nemeses;
 
-SELECT
-    4 AS QUERY;
+
+---------------------------- 4 ----------------------------
+SELECT 4 AS QUERY;
 
 CREATE OR REPLACE FUNCTION insertPerson(
     name VARCHAR(255),
@@ -152,15 +147,13 @@ BEGIN;
 ROLLBACK;
 
 
-
-
-SELECT
-    5 AS QUERY;
+---------------------------- 5 ----------------------------
+SELECT 5 AS QUERY;
 
 SELECT * FROM Locations
 
 
-CREATE OR REPLACE FUNCTION correctsCaseCounter() 
+CREATE OR REPLACE FUNCTION 	CaseCountFixer() 
 RETURNS VOID
 AS $$
     UPDATE Locations
@@ -177,23 +170,32 @@ $$ LANGUAGE SQL;
 
 
 BEGIN;
-    SELECT correctsCaseCounter();
+    SELECT 	CaseCountFixer();
     SELECT * FROM Locations
     ORDER BY Locations.locationId ASC;
 ROLLBACK;
 
+---------------------------- 6 ----------------------------
+SELECT 6 AS QUERY;
 
-SELECT
-    6 AS QUERY;
+CREATE TRIGGER CaseCountTracker
+    AFTER INSERT OR UPDATE ON Cases 
+    EXECUTE PROCEDURE CaseCountFixerTrigger()
 
-SELECT
-    7 AS QUERY;
+CREATE OR REPLACE FUNCTION CaseCountFixerTrigger()
+RETURNS TRIGGER
+LANGUAGE plpgsql AS 
+$$
+    BEGIN
+    EXECUTE CaseCountFixer();
+    END;
+$$;
 
-SELECT
-    8 AS QUERY;
-
-SELECT
-    9 AS QUERY;
-
-SELECT
-    10 AS QUERY;
+---------------------------- 7 ----------------------------
+SELECT 7 AS QUERY;
+---------------------------- 8 ----------------------------
+SELECT 8 AS QUERY;
+---------------------------- 9 ----------------------------
+SELECT 9 AS QUERY;
+---------------------------- 10 ----------------------------
+SELECT 10 AS QUERY;
