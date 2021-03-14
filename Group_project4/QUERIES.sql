@@ -104,52 +104,47 @@ FROM
         A.agentID, P.personId
     ) as CulpritCoutTable
 WHERE 
-    CulpritCoutTable.culpritCount > 1
+    CulpritCoutTable.culpritCount > 1;
 
---SELECT * FROM Nemeses;
+SELECT * FROM Nemeses;
 
 SELECT
     4 AS QUERY;
 
-CREATE OR REPLACE PROCEDURE insertPerson(
+CREATE OR REPLACE FUNCTION insertPerson(
     name VARCHAR(255),
     profId INTEGER,
     genderId INTEGER,
-    locationId INTEGER)
-LANGUAGE SQL
+    locationId INTEGER,
+    Prdescription VARCHAR(255))
+RETURNS VOID
 AS $$
+    BEGIN
+        IF name = '' THEN 
+            RAISE EXCEPTION 'The person must have a name';
+        END IF;
+        IF genderId > 3 OR genderId < 0 THEN 
+            RAISE EXCEPTION 'The person must have a genderId, either 0 = Male, 1 = female or 3 = other';
+        END IF;
+        IF locationId NOT IN (SELECT L.locationId FROM Locations L) THEN 
+            RAISE EXCEPTION 'This location does not exist in the database. Create a new location with that id and come back later';
+        END IF;
+        IF profId NOT IN (SELECT professionId FROM Professions) THEN 
+            INSERT INTO Professions(ProfessionID, description) VALUES (profId, Prdescription);
+        END IF;
+
     INSERT INTO People (personId, name, professionId, genderId, locationId) 
     VALUES (default, name, profId, genderId, locationId);
-$$;
+    END;
+$$ LANGUAGE plpgsql;
 
 BEGIN;
-    CREATE FUNCTION validPerson() RETURNS TRIGGER AS $ValidP$
-        BEGIN
-            IF NEW.name = ''
-                THEN RAISE EXCEPTION 'The person must have a name';
-            END IF;
-            IF NEW.genderId > 3 OR NEW.genderId < 0 
-                THEN RAISE EXCEPTION 'The person must have a genderId, either 0 = Male, 1 = female or 3 = other';
-            END IF;
-            IF NEW.locationId NOT IN (SELECT locationId FROM Locations)
-                THEN RAISE EXCEPTION 'This location does not exist in the database. Create a new location with that id and come back later';
-            END IF;
-            IF New.professionId NOT IN (SELECT professionId FROM Professions)
-                THEN RAISE EXCEPTION 'Insert the description';
-            END IF;
-            RETURN NEW;
-        END;
-        $ValidP$ LANGUAGE plpgsql;
-
-    --This trigger executes the procedure function here above
-    CREATE TRIGGER ValidP BEFORE INSERT OR UPDATE ON People
-        FOR EACH ROW EXECUTE PROCEDURE validPerson();
-
-    CALL insertPerson(
+    SELECT insertPerson(
         'Bergur', 
-        2511, 
-        2,
-        91);
+        69, 
+        3,
+        91,
+        'Hallo');
 
     SELECT * FROM People P
     JOIN Professions PR ON P.professionId = PR.professionId
