@@ -193,6 +193,66 @@ $$;
 
 ---------------------------- 7 ----------------------------
 SELECT 7 AS QUERY;
+
+SELECT
+    7 AS QUERY;
+
+SELECT * FROM InvolvedIn
+SELECT * FROM Cases
+
+DROP FUNCTION startInvestigation(
+    agentId INTEGER,
+    personId INTEGER,
+    caseId INTEGER,
+    caseName VARCHAR(255),
+    caseYear Integer
+)
+
+CREATE OR REPLACE FUNCTION startInvestigation(
+    agentId INTEGER,
+    personId INTEGER,
+    caseId INTEGER,
+    caseName VARCHAR(255),
+    caseYear Integer)
+RETURNS VOID
+AS $$
+    BEGIN
+        INSERT INTO Cases
+        VALUES
+        (caseId, 
+        caseName, 
+        FALSE, 
+        caseYear, 
+        agentId, 
+        (
+            SELECT 
+                L.locationid 
+            FROM People P 
+                JOIN Locations L ON P.locationId = L.locationId 
+            WHERE personId = P.personId
+        ));
+
+        INSERT INTO InvolvedIn
+        VALUES
+        (personId, caseId, agentId, TRUE);
+    END;
+$$ LANGUAGE plpgsql;
+
+BEGIN;
+    SELECT startInvestigation(
+        5, --volcano
+        2, --heidar finnboga
+        2, --The Case Of The Protest
+        'Wassaaa', --caseName
+        2021 --caseYear
+    );
+
+ROLLBACK;
+
+SELECT * FROM agents
+SELECT * FROM people
+SELECT * FROM cases
+
 ---------------------------- 8 ----------------------------
 SELECT 8 AS QUERY;
 ---------------------------- 9 ----------------------------
