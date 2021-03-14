@@ -11,7 +11,7 @@ FROM
     Agents A
     JOIN Cases C ON A.AgentID = C.AgentID
 GROUP BY
-    A.AgentID 
+    A.AgentID; 
     
 
 CREATE OR REPLACE FUNCTION mostCommonLocation(agent_ID int) 
@@ -39,10 +39,10 @@ from
 IF tie(LocationAndCount)
 END IF;
 
-CREATE OR REPLACE FUNCTION tie(t TABLE)
+CREATE OR REPLACE FUNCTION tie(t TABLE);
 
 
-
+SELECT * FROM numOfCases;
 
 SELECT
     2 AS QUERY;
@@ -107,41 +107,52 @@ SELECT
     4 AS QUERY;
 
 CREATE OR REPLACE PROCEDURE insertPerson(
-    professionDescription VARCHAR(255),
-    gender VARCHAR(255),
-    location VARCHAR(255),
-    caseCount INTEGER,
     name VARCHAR(255),
     profId INTEGER,
     genderId INTEGER,
     locationId INTEGER)
 LANGUAGE SQL
 AS $$
-    INSERT INTO Professions(description)
-    VALUES (ProfessionDescription);
-    INSERT INTO Genders(genderId, gender)
-    VALUES (default, gender);
-    INSERT INTO Locations(location, caseCount)
-    VALUES (location, caseCount);
     INSERT INTO People (personId, name, professionId, genderId, locationId) 
     VALUES (default, name, profId, genderId, locationId);
 $$;
 
-CALL insertPerson(
-    'Software Engineer', 
-    'Male', 
-    'Shanghai CHINA',
-    1000,
-    'Kristofer', 
-    2511,
-    2,
-    91);
+BEGIN;
+    CREATE FUNCTION validPerson() RETURNS TRIGGER AS $ValidP$
+        BEGIN
+            IF NEW.name = ''
+                THEN RAISE EXCEPTION 'The person must have a name';
+            END IF;
+            IF NEW.genderId > 3 OR NEW.genderId < 0 
+                THEN RAISE EXCEPTION 'The person must have a genderId, either 0 = Male, 1 = female or 3 = other';
+            END IF;
+            IF NEW.locationId NOT IN (SELECT locationId FROM Locations)
+                THEN RAISE EXCEPTION 'This location does not exist in the database. Create a new location with that id and come back later';
+            END IF;
+            IF New.professionId NOT IN (SELECT professionId FROM Professions)
+                THEN RAISE EXCEPTION 'Insert the description';
+            END IF;
+            RETURN NEW;
+        END;
+        $ValidP$ LANGUAGE plpgsql;
 
-SELECT * FROM People P
-WHERE P.name = 'Kristofer';
+    --This trigger executes the procedure function here above
+    CREATE TRIGGER ValidP BEFORE INSERT OR UPDATE ON People
+        FOR EACH ROW EXECUTE PROCEDURE validPerson();
 
--- DELETE FROM People P
--- WHERE P.name = 'Kristofer'
+    CALL insertPerson(
+        'Bergur', 
+        2511, 
+        2,
+        91);
+
+    SELECT * FROM People P
+    JOIN Professions PR ON P.professionId = PR.professionId
+    WHERE P.name = 'Bergur';
+ROLLBACK;
+
+
+
 
 SELECT
     5 AS QUERY;
