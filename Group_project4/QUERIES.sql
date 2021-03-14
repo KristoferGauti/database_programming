@@ -178,10 +178,6 @@ ROLLBACK;
 ---------------------------- 6 ----------------------------
 SELECT 6 AS QUERY;
 
-CREATE TRIGGER CaseCountTracker
-    AFTER INSERT OR UPDATE ON Cases 
-    EXECUTE PROCEDURE CaseCountFixerTrigger()
-
 CREATE OR REPLACE FUNCTION CaseCountFixerTrigger()
 RETURNS TRIGGER
 LANGUAGE plpgsql AS 
@@ -191,22 +187,21 @@ $$
     END;
 $$;
 
+CREATE OR REPLACE TRIGGER CaseCountTracker
+    AFTER INSERT OR UPDATE ON Cases 
+    EXECUTE PROCEDURE CaseCountFixerTrigger();
+
+
 ---------------------------- 7 ----------------------------
 SELECT 7 AS QUERY;
 
-SELECT
-    7 AS QUERY;
-
-SELECT * FROM InvolvedIn
-SELECT * FROM Cases
-
-DROP FUNCTION startInvestigation(
-    agentId INTEGER,
-    personId INTEGER,
-    caseId INTEGER,
-    caseName VARCHAR(255),
-    caseYear Integer
-)
+-- DROP FUNCTION startInvestigation(
+--     agentId INTEGER,
+--     personId INTEGER,
+--     caseId INTEGER,
+--     caseName VARCHAR(255),
+--     caseYear Integer
+-- )
 
 CREATE OR REPLACE FUNCTION startInvestigation(
     agentId INTEGER,
