@@ -106,6 +106,8 @@ FROM
 WHERE 
     CulpritCoutTable.culpritCount > 1
 
+--SELECT * FROM Nemeses;
+
 SELECT
     4 AS QUERY;
 
@@ -160,15 +162,31 @@ ROLLBACK;
 SELECT
     5 AS QUERY;
 
-SELECT * FROM Cases
-
-SELECT C.locationId, COUNT(*)
-FROM Cases C
-    JOIN Locations L ON C.locationId = L.locationId
-GROUP BY C.locationId
+SELECT * FROM Locations
 
 
-CREATE FUNCTION caseCountFixer()
+CREATE OR REPLACE FUNCTION correctsCaseCounter() 
+RETURNS VOID
+AS $$
+    UPDATE Locations
+    SET caseCount = caseC
+    FROM (
+            SELECT C.locationId, COUNT(*) caseC
+            FROM Cases C
+                JOIN Locations L ON C.locationId = L.locationId
+            GROUP BY C.locationId, L.location
+        ) AS TAB
+    WHERE Locations.locationId = TAB.locationId;
+
+$$ LANGUAGE SQL;
+
+
+BEGIN;
+    SELECT correctsCaseCounter();
+    SELECT * FROM Locations
+    ORDER BY Locations.locationId ASC;
+ROLLBACK;
+
 
 SELECT
     6 AS QUERY;
