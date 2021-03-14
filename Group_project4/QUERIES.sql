@@ -34,8 +34,14 @@ from
             L.location
         ORDER BY
             LocationCount DESC
-        LIMIT 1
+        --LIMIT 1
     ) as LocationAndCount $$;
+IF tie(LocationAndCount)
+END IF;
+
+CREATE OR REPLACE FUNCTION tie(t TABLE)
+
+
 
 
 SELECT
