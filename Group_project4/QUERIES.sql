@@ -37,7 +37,7 @@ from
             LocationCount DESC
         --LIMIT 1
     ) as LocationAndCount $$;
-IF tie(LocationAndCount)
+
 
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
@@ -210,7 +210,7 @@ CREATE OR REPLACE FUNCTION startInvestigation(
 RETURNS VOID
 AS $$
     BEGIN
-        INSERT INTO Cases (caseId, title, isClosed, year, agentId, locationId)
+        INSERT INTO Cases
         VALUES
         (default, 
         caseName, 
@@ -225,7 +225,7 @@ AS $$
             WHERE IdPerson = P.personId
         ));
 
-        INSERT INTO InvolvedIn(personId, caseId, agentId, isCulprit)
+        INSERT INTO InvolvedIn
         VALUES
         (
             IdPerson, 
@@ -358,3 +358,51 @@ SELECT LastCase('Garðabær');
 
 ---------------------------- 10 ----------------------------
 SELECT 10 AS QUERY;
+
+CREATE OR REPLACE FUNCTION FrenemiesOfFrenemies(PersonID_in INT)
+RETURNS TABLE(names varchar(255)) AS
+$$
+DECLARE rec1 RECORD;
+DECLARE rec2 RECORD;
+DECLARE rec3 RECORD;
+DECLARE rec4 RECORD;
+BEGIN
+    CREATE TABLE temp(name varchar(255), personid INT);
+
+    FOR rec1 IN (  SELECT 
+                    caseid, name 
+                FROM (
+                        SELECT 
+                            *
+                        FROM
+                            People P
+                            JOIN InvolvedIn I ON I.personId = P.personId
+                        WHERE
+                            P.personId = PersonID_in
+                    ) as INVOLVEDCASES
+                ) LOOP
+    FOR rec2 IN (SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId WHERE Inv.caseId = rec1.caseid AND P.name != rec1.name) LOOP
+    INSERT INTO temp VALUES (rec2.name, rec2.personId);
+    RETURN QUERY SELECT rec2.name;
+
+        END LOOP;
+    END LOOP;
+
+    FOR rec3 IN (SELECT T.name, T.personID FROM temp T) LOOP
+    FOR rec4 IN (SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId WHERE Inv.caseId = rec1.caseid AND P.name NOT IN (SELECT T.name FROM temp T) AND P.personID != PersonID_in) LOOP
+    INSERT INTO temp VALUES (rec4.name, rec4.personId);
+    RETURN QUERY SELECT rec4.name;
+    END LOOP;
+END LOOP;
+DROP TABLE temp;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+SELECT FrenemiesOfFrenemies(4642)
+SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId
+
+
+
