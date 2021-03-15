@@ -259,14 +259,77 @@ BEGIN;
     WHERE A.AgentId = 5 AND P.personId = 2 AND C.title = 'Wassaaa' AND C.year = 2021;
 ROLLBACK;
 
-SELECT * FROM Cases
-
-SELECT * FROM agents
-SELECT * FROM people
-SELECT * FROM cases
-
 ---------------------------- 8 ----------------------------
 SELECT 8 AS QUERY;
+
+CREATE OR REPLACE FUNCTION deleteAgent(oldAgentId INTEGER, oldSecretIdentity INTEGER)
+RETURNS VOID
+AS $$
+    BEGIN
+        DELETE FROM People P
+        WHERE P.personId = oldSecretIdentity;
+
+        DELETE FROM InvolvedIn I 
+        WHERE I.agentId = oldAgentId;
+
+        DELETE FROM Cases C
+        WHERE C.caseId = (SELECT C.caseId FROM Cases WHERE oldAgentId = C.agentId);
+
+        DELETE FROM Agents A 
+        WHERE A.agentId = oldAgentId;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION deletedAgent()
+RETURNS TRIGGER
+AS $$
+    BEGIN
+        IF OLD.agentId IN (SELECT C.agentId FROM Cases C) THEN
+            CALL deleteAgent(OLD.agentId, OLD.secretIdentity, OLD.caseId);
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+--DROP TRIGGER deleteAgentsTrigger ON Agents;
+CREATE TRIGGER deleteAgentsTrigger
+    AFTER DELETE ON Agents
+    FOR EACH ROW
+    EXECUTE PROCEDURE deletedAgent()
+
+
+
+
+BEGIN;
+    -- DELETE FROM InvolvedIn I
+    -- WHERE I.agentId = 5 AND I.caseId = 15;
+
+    -- DELETE FROM Cases C 
+    -- WHERE C.caseId = 15 AND C.agentId = 5;
+    
+    DELETE FROM Agents A
+    WHERE A.agentId = 5;
+
+    SELECT A.agentId, COUNT(*) numOfCases
+    FROM Agents A 
+    JOIN Cases C ON A.agentId = C.agentId
+    GROUP BY C.agentId, A.agentId
+    ORDER BY numOfCases ASC;
+ROLLBACK;
+
+
+SELECT * FROM InvolvedIn WHERE AgentId = 5 AND CaseId = 15
+SELECT * FROM Agents WHERE AgentId = 5
+SELECT * FROM InvolvedIn I
+WHERE I.caseId = 15 AND I.agentId = 5
+
+SELECT A.agentId, COUNT(*) numOfCases
+FROM Agents A 
+JOIN Cases C ON A.agentId = C.agentId
+GROUP BY C.agentId, A.agentId
+ORDER BY numOfCases ASC
+
 ---------------------------- 9 ----------------------------
 SELECT 9 AS QUERY;
 
