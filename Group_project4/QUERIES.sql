@@ -252,5 +252,29 @@ SELECT * FROM cases
 SELECT 8 AS QUERY;
 ---------------------------- 9 ----------------------------
 SELECT 9 AS QUERY;
+
+CREATE OR REPLACE FUNCTION LastCase(location_in VARCHAR(255))
+RETURNS INT AS
+$$
+    DECLARE rec RECORD;
+    DECLARE closestCase INT := -10000;
+    DECLARE currentYear INT := date_part('year', CURRENT_DATE);
+    BEGIN
+        FOR rec IN (SELECT L.location, C.year 
+                    FROM Locations L 
+                    JOIN Cases C ON L.locationId = C.locationId
+                    WHERE L.location LIKE location_in) LOOP
+            
+            IF rec.year <= currentYear AND rec.year > closestCase  THEN
+            closestCase := rec.year;
+            END IF;
+        END LOOP;
+        return currentYear - closestCase;
+    END;
+$$ LANGUAGE plpgsql;
+
+SELECT LastCase('Garðabær');
+
+
 ---------------------------- 10 ----------------------------
 SELECT 10 AS QUERY;
