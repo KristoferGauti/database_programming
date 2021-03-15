@@ -289,81 +289,6 @@ ROLLBACK;
 ---------------------------- 8 ----------------------------
 SELECT 8 AS QUERY;
 
-CREATE OR REPLACE FUNCTION deleteAgent(oldAgentId INTEGER, oldSecretIdentity INTEGER)
-RETURNS VOID
-AS $$
-    BEGIN
-        DELETE FROM People P
-        WHERE P.personId = oldSecretIdentity;
-
-        DELETE FROM InvolvedIn I 
-        WHERE I.agentId = oldAgentId;
-
-        DELETE FROM Cases C
-        WHERE C.caseId = (SELECT C.caseId FROM Cases WHERE oldAgentId = C.agentId);
-
-        DELETE FROM Agents A 
-        WHERE A.agentId = oldAgentId;
-    END;
-$$ LANGUAGE plpgsql;
-
---HERE I CREATED THIS MAD LONG FUNCTION 
-
-
-CREATE OR REPLACE FUNCTION LowestCases()
-RETURNS INT AS 
-$$
-SELECT agentID FROM(
-SELECT agentID, designation FROM(
-    SELECT
-        A.codename,
-        A.agentID,
-        A.designation,
-        COUNT(A.codename) AS caseCount
-    FROM
-        Agents A
-        JOIN Cases C ON A.AgentID = C.AgentID
-    GROUP BY
-        A.AgentID
-) AS ABC
-WHERE ABC.caseCount = (
-        SELECT MIN(caseCount) FROM(
-            SELECT
-            A.codename,
-            A.agentID,
-            COUNT(A.codename) AS caseCount
-        FROM
-            Agents A
-            JOIN Cases C ON A.AgentID = C.AgentID
-        GROUP BY
-            A.AgentID
-        ) AS CBA
-    ) 
-)AS FINALTABLE
-WHERE designation = (
-    SELECT MIN(designation) FROM 
-)
-
-$$ LANGUAGE SQL;
-
-SELECT LowestCases()
-
-
-
-
-SELECT
-    A.codename,
-    A.agentID,
-    COUNT(A.codename) AS caseCount,
-    mostCommonLocation(A.AgentID)
-FROM
-    Agents A
-    JOIN Cases C ON A.AgentID = C.AgentID
-GROUP BY
-    A.AgentID; 
-
-
-
 
 CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
@@ -376,7 +301,7 @@ AS $$
             -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
             -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
 
-            
+            -- c) Er ekki viss með hvað sé verið að biðja um í c)          
         END IF;
 
         RETURN OLD;
