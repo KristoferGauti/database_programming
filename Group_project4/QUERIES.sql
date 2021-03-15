@@ -242,25 +242,24 @@ AS $$
     END;
 $$ LANGUAGE plpgsql;
 
-SELECT I.caseId FROM InvolvedIn
-
-
 BEGIN;
     SELECT startInvestigation(
-        5, --volcano
+        5, --Loud Cayman
         2, --heidar finnboga
         'Wassaaa', --caseName
         2021 --caseYear
     );
 
+    SELECT A.codename, P.name, C.title, C.year
+    FROM Agents A 
+    JOIN InvolvedIn I ON A.agentId = I.agentId
+    JOIN People P ON I.personId = P.personId
+    JOIN Locations L ON P.locationId = L.locationId
+    JOIN Cases C ON C.caseId = I.caseId
+    WHERE A.AgentId = 5 AND P.personId = 2 AND C.title = 'Wassaaa' AND C.year = 2021;
 ROLLBACK;
 
-BEGIN;
-    INSERT INTO Cases (caseId, title, isClosed, year, agentId, locationId)
-    VALUES(default, 'hallo', TRUE, 2020, 13, 37);
-ROLLBACK;
-
-    SELECT * FROM Cases
+SELECT * FROM Cases
 
 SELECT * FROM agents
 SELECT * FROM people
