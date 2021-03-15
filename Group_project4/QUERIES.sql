@@ -16,12 +16,10 @@ GROUP BY
     
 
 CREATE OR REPLACE FUNCTION mostCommonLocation(agent_ID int) 
-RETURNS TABLE(location VARCHAR(255)) 
+RETURNS VARCHAR[]
 LANGUAGE SQL AS $$
-SELECT
-    location
-from
-    (
+SELECT ARRAY(
+    SELECT location FROM(
         SELECT
             L.location,
             COUNT(L.locationId) as LocationCount
@@ -32,12 +30,41 @@ from
         WHERE
             A.agentID = agent_ID
         GROUP BY
-            L.location
-        ORDER BY
-            LocationCount DESC
-        --LIMIT 1
-    ) as LocationAndCount $$;
+            L.location) AS ABC
 
+        WHERE ABC.LocationCount = (
+            SELECT MAX(LocationCount2) FROM(
+                SELECT
+                    L.location,
+                    COUNT(L.locationId) as LocationCount2
+                FROM
+                    Agents A
+                    JOIN Cases C ON A.agentID = C.agentID
+                    JOIN Locations L ON C.locationId = L.locationId
+                WHERE
+                    A.agentID = agent_ID
+                GROUP BY
+                    L.location
+
+                )AS ABC
+        )
+);
+$$;
+
+
+SELECT * from NumOfCases
+
+SELECT
+    L.location,
+    COUNT(L.locationId) as LocationCount
+FROM
+    Agents A
+    JOIN Cases C ON A.agentID = C.agentID
+    JOIN Locations L ON C.locationId = L.locationId
+WHERE
+    A.codename = 'Duster'
+GROUP BY
+    L.location
 
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
