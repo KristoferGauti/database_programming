@@ -195,54 +195,72 @@ CREATE OR REPLACE TRIGGER CaseCountTracker
 ---------------------------- 7 ----------------------------
 SELECT 7 AS QUERY;
 
--- DROP FUNCTION startInvestigation(
---     agentId INTEGER,
---     personId INTEGER,
---     caseId INTEGER,
---     caseName VARCHAR(255),
---     caseYear Integer
--- )
-
-CREATE OR REPLACE FUNCTION startInvestigation(
+DROP FUNCTION startInvestigation(
     agentId INTEGER,
     personId INTEGER,
-    caseId INTEGER,
     caseName VARCHAR(255),
-    caseYear Integer)
+    caseYear Integer
+)
+
+CREATE OR REPLACE FUNCTION startInvestigation(
+    IdAgent INTEGER,
+    IdPerson INTEGER,
+    caseName VARCHAR(255),
+    caseYear INTEGER)
 RETURNS VOID
 AS $$
     BEGIN
-        INSERT INTO Cases
+        INSERT INTO Cases (caseId, title, isClosed, year, agentId, locationId)
         VALUES
-        (caseId, 
+        (default, 
         caseName, 
         FALSE, 
         caseYear, 
-        agentId, 
+        IdAgent,
         (
             SELECT 
                 L.locationid 
             FROM People P 
                 JOIN Locations L ON P.locationId = L.locationId 
-            WHERE personId = P.personId
+            WHERE IdPerson = P.personId
         ));
 
-        INSERT INTO InvolvedIn
+        INSERT INTO InvolvedIn(personId, caseId, agentId, isCulprit)
         VALUES
-        (personId, caseId, agentId, TRUE);
+        (
+            IdPerson, 
+            (
+                SELECT C.caseId 
+                FROM cases C
+                WHERE C.title = caseName AND
+                C.year = caseYear AND
+                C.agentId = IdAgent
+            ), 
+            IdAgent, 
+            TRUE
+        );
     END;
 $$ LANGUAGE plpgsql;
+
+SELECT I.caseId FROM InvolvedIn
+
 
 BEGIN;
     SELECT startInvestigation(
         5, --volcano
         2, --heidar finnboga
-        2, --The Case Of The Protest
         'Wassaaa', --caseName
         2021 --caseYear
     );
 
 ROLLBACK;
+
+BEGIN;
+    INSERT INTO Cases (caseId, title, isClosed, year, agentId, locationId)
+    VALUES(default, 'hallo', TRUE, 2020, 13, 37);
+ROLLBACK;
+
+    SELECT * FROM Cases
 
 SELECT * FROM agents
 SELECT * FROM people
