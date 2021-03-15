@@ -307,12 +307,76 @@ AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+--HERE I CREATED THIS MAD LONG FUNCTION 
+
+
+CREATE OR REPLACE FUNCTION LowestCases()
+RETURNS INT AS 
+$$
+SELECT agentID FROM(
+SELECT agentID, designation FROM(
+    SELECT
+        A.codename,
+        A.agentID,
+        A.designation,
+        COUNT(A.codename) AS caseCount
+    FROM
+        Agents A
+        JOIN Cases C ON A.AgentID = C.AgentID
+    GROUP BY
+        A.AgentID
+) AS ABC
+WHERE ABC.caseCount = (
+        SELECT MIN(caseCount) FROM(
+            SELECT
+            A.codename,
+            A.agentID,
+            COUNT(A.codename) AS caseCount
+        FROM
+            Agents A
+            JOIN Cases C ON A.AgentID = C.AgentID
+        GROUP BY
+            A.AgentID
+        ) AS CBA
+    ) 
+)AS FINALTABLE
+WHERE designation = (
+    SELECT MIN(designation) FROM 
+)
+
+$$ LANGUAGE SQL;
+
+SELECT LowestCases()
+
+
+
+
+SELECT
+    A.codename,
+    A.agentID,
+    COUNT(A.codename) AS caseCount,
+    mostCommonLocation(A.AgentID)
+FROM
+    Agents A
+    JOIN Cases C ON A.AgentID = C.AgentID
+GROUP BY
+    A.AgentID; 
+
+
+
+
 CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
 AS $$
     BEGIN
         IF OLD.agentId IN (SELECT C.agentId FROM Cases C) THEN
-            CALL deleteAgent(OLD.agentId, OLD.secretIdentity, OLD.caseId);
+            -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
+            --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
+
+            -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
+            -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
+
+            
         END IF;
 
         RETURN OLD;
