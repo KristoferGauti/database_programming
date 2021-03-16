@@ -328,53 +328,62 @@ ROLLBACK;
 ---------------------------- 8 ----------------------------
 SELECT 8 AS QUERY;
 
+SELECT * FROM Cases C JOIN 
 
 CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
 AS $$
+    DECLARE rec1 RECORD;
+    DECLARE lowestAgentId INT := (
+                    SELECT agentID FROM
+                    (
+                        SELECT * FROM
+                        (SELECT A.agentId, COUNT(*) numOfCases, A.designation
+                        FROM Agents A 
+                        JOIN Cases C ON A.agentId = C.agentId
+                        WHERE C.isClosed = FALSE
+                        GROUP BY A.agentId
+                        ) AS NUMCASES
+                        WHERE NUMCASES.numOfCases = (
+                            SELECT MIN(numCases) FROM (
+                                SELECT A.agentId, COUNT(*) numCases
+                                FROM Agents A 
+                                JOIN Cases C ON A.agentId = C.agentId
+                                WHERE C.isClosed = FALSE
+                                GROUP BY A.agentId
+                            ) AS ABC
+                        )
+                    )AS FINALTABLE
+                    ORDER BY FINALTABLE.designation
+                    LIMIT 1
+                ); 
     BEGIN
-        IF NEW.agentId IN (SELECT C.agentId FROM Cases C) THEN
-            -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
+        -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
+        FOR rec1 IN (
+            SELECT 
+                *
+            FROM Cases C 
+            WHERE C.agentId = OLD.agentId) LOOP
+
             UPDATE Cases
-            SET agentID = (
+            SET agentId = lowestAgentId
+            WHERE caseId = rec1.caseId;
+        END LOOP;
 
+
+                
             --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
-            SELECT agentID FROM
-            (
-            SELECT * FROM
-            (SELECT A.agentId, COUNT(*) numOfCases, A.designation
-            FROM Agents A 
-            JOIN Cases C ON A.agentId = C.agentId
-            WHERE C.isClosed = FALSE
-            GROUP BY A.agentId
-            ) AS NUMCASES
-            WHERE NUMCASES.numOfCases = (
-                SELECT MIN(numCases) FROM (
-                    SELECT A.agentId, COUNT(*) numCases
-                    FROM Agents A 
-                    JOIN Cases C ON A.agentId = C.agentId
-                    WHERE C.isClosed = FALSE
-                    GROUP BY A.agentId
-                ) AS ABC
-            )
-            )AS FINALTABLE
-            ORDER BY FINALTABLE.designation
-            LIMIT 1
-        )
-        WHERE agentID = NEW.agentID;
 
 
-            -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
-            -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
+        -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
+        -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
 
 
-            -- c) The agent that was removed from the database has a secretIdentity
-            -- That needs to be removed aswell from the People table.
-            -- Remove also the people with P.personId = A.secretIdentity
+        -- c) The agent that was removed from the database has a secretIdentity
+        -- That needs to be removed aswell from the People table.
+        -- Remove also the people with P.personId = A.secretIdentity
 
-        END IF;
-
-        RETURN NEW;
+        RETURN OLD;
     END;
 $$ LANGUAGE plpgsql;
 
@@ -392,22 +401,11 @@ BEGIN;
     DELETE FROM Agents A
     WHERE A.agentId = 10;
 
-   SELECT * FROM CASES C WHERE C.agentID = 10 ;
+    SELECT * FROM CASES C WHERE C.agentID = 10;
 ROLLBACK;
 
+SELECT * FROM CASES C WHERE C.agentID = 10;
 
-SELECT * FROM InvolvedIn WHERE AgentId = 5 AND CaseId = 15
-SELECT * FROM Agents WHERE AgentId = 5
-SELECT * FROM InvolvedIn I
-WHERE I.caseId = 15 AND I.agentId = 5
-
-SELECT * FROM Cases
-
-SELECT A.agentId, COUNT(*) numOfCases
-FROM Agents A 
-JOIN Cases C ON A.agentId = C.agentId
-GROUP BY C.agentId, A.agentId
-ORDER BY numOfCases ASC
 
 ---------------------------- 9 ----------------------------
 SELECT 9 AS QUERY;
