@@ -1,20 +1,6 @@
 ---------------------------- 1 ----------------------------
 SELECT 1 AS QUERY;
 
--- Almost finished, only need to figure out how to return a array
-CREATE OR REPLACE VIEW NumOfCases AS
-SELECT
-    A.codename,
-    A.status,
-    COUNT(A.codename) AS caseCount,
-    mostCommonLocation(A.AgentID)
-FROM
-    Agents A
-    JOIN Cases C ON A.AgentID = C.AgentID
-GROUP BY
-    A.AgentID; 
-    
-
 CREATE OR REPLACE FUNCTION mostCommonLocation(agent_ID int) 
 RETURNS VARCHAR[]
 LANGUAGE SQL AS $$
@@ -32,24 +18,37 @@ SELECT ARRAY(
         GROUP BY
             L.location) AS ABC
 
-        WHERE ABC.LocationCount = (
-            SELECT MAX(LocationCount2) FROM(
-                SELECT
-                    L.location,
-                    COUNT(L.locationId) as LocationCount2
-                FROM
-                    Agents A
-                    JOIN Cases C ON A.agentID = C.agentID
-                    JOIN Locations L ON C.locationId = L.locationId
-                WHERE
-                    A.agentID = agent_ID
-                GROUP BY
-                    L.location
+    WHERE ABC.LocationCount = (
+        SELECT MAX(LocationCount2) FROM(
+            SELECT
+                L.location,
+                COUNT(L.locationId) as LocationCount2
+            FROM
+                Agents A
+                JOIN Cases C ON A.agentID = C.agentID
+                JOIN Locations L ON C.locationId = L.locationId
+            WHERE
+                A.agentID = agent_ID
+            GROUP BY
+                L.location
 
-                )AS ABC
-        )
+            )AS ABC
+    )
 );
 $$;
+
+CREATE OR REPLACE VIEW NumOfCases AS
+SELECT
+    A.codename,
+    A.status,
+    COUNT(A.codename) AS caseCount,
+    mostCommonLocation(A.AgentID)
+FROM
+    Agents A
+    JOIN Cases C ON A.AgentID = C.AgentID
+GROUP BY
+    A.AgentID; 
+    
 
 
 SELECT * from NumOfCases
@@ -69,7 +68,6 @@ GROUP BY
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
 
---DROP VIEW TopSuspects;
 CREATE
 OR REPLACE VIEW subTopSuspects(personId, personName, personLocation, numOfCases) AS
 SELECT
@@ -293,15 +291,37 @@ SELECT 8 AS QUERY;
 CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
 AS $$
+    DECLARE rec1 RECORD;
     BEGIN
         IF OLD.agentId IN (SELECT C.agentId FROM Cases C) THEN
             -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
             --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
+            
+            SELECT C.CaseId FROM Cases C WHERE C.agentId = OLD.agentId
+
+
+            SELECT A.agentId, COUNT(*) numOfCases, A.designation
+            FROM Agents A 
+            JOIN Cases C ON A.agentId = C.agentId
+            GROUP BY A.agentId, C.isClosed
+            HAVING C.isClosed = FALSE
+            ORDER BY numOfCases;
 
             -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
             -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
+            BEGIN;
+                UPDATE InvolvedIn
+                SET isCulprit = null --Þetta er bara bull, þetta virkar ekki á AgentId
+                WHERE agentId = 5;
+                
+                SELECT * FROM InvolvedIn 
+                WHERE agentId = 5;
+            ROLLBACK;
 
-            -- c) Er ekki viss með hvað sé verið að biðja um í c)          
+            -- c) The agent that was removed from the database has a secretIdentity
+            -- That needs to be removed aswell from the People table.
+            -- Remove also the people with P.personId = A.secretIdentity
+
         END IF;
 
         RETURN OLD;
@@ -316,7 +336,7 @@ CREATE TRIGGER deleteAgentsTrigger
 
 
 
-
+--Tests
 BEGIN;
     -- DELETE FROM InvolvedIn I
     -- WHERE I.agentId = 5 AND I.caseId = 15;
@@ -339,6 +359,8 @@ SELECT * FROM InvolvedIn WHERE AgentId = 5 AND CaseId = 15
 SELECT * FROM Agents WHERE AgentId = 5
 SELECT * FROM InvolvedIn I
 WHERE I.caseId = 15 AND I.agentId = 5
+
+SELECT * FROM Cases
 
 SELECT A.agentId, COUNT(*) numOfCases
 FROM Agents A 
@@ -397,17 +419,45 @@ BEGIN
                             P.personId = PersonID_in
                     ) as INVOLVEDCASES
                 ) LOOP
-    FOR rec2 IN (SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId WHERE Inv.caseId = rec1.caseid AND P.name != rec1.name) LOOP
-    INSERT INTO temp VALUES (rec2.name, rec2.personId);
-    RETURN QUERY SELECT rec2.name;
+    FOR rec2 IN (
+        SELECT 
+            P.name, 
+            Inv.caseId,
+            P.personId 
+        FROM People P 
+            JOIN InvolvedIn Inv ON P.personId = Inv.personId 
+        WHERE Inv.caseId = rec1.caseid AND 
+        P.name != rec1.name
+        ) LOOP
+        INSERT INTO temp VALUES (rec2.name, rec2.personId);
+        RETURN QUERY SELECT rec2.name;
 
         END LOOP;
     END LOOP;
 
-    FOR rec3 IN (SELECT T.name, T.personID FROM temp T) LOOP
-    FOR rec4 IN (SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId WHERE Inv.caseId = rec1.caseid AND P.name NOT IN (SELECT T.name FROM temp T) AND P.personID != PersonID_in) LOOP
-    INSERT INTO temp VALUES (rec4.name, rec4.personId);
-    RETURN QUERY SELECT rec4.name;
+    FOR rec3 IN (
+        SELECT 
+            T.name, 
+            T.personID 
+        FROM temp T
+        ) LOOP
+    FOR rec4 IN (
+        SELECT 
+            P.name, 
+            Inv.caseId, 
+            P.personId 
+        FROM People P 
+            JOIN InvolvedIn Inv ON P.personId = Inv.personId 
+            WHERE Inv.caseId = rec1.caseid AND 
+            P.name NOT IN (
+                SELECT 
+                    T.name 
+                FROM temp T
+                ) AND 
+            P.personID != PersonID_in
+            ) LOOP
+        INSERT INTO temp VALUES (rec4.name, rec4.personId);
+        RETURN QUERY SELECT rec4.name;
     END LOOP;
 END LOOP;
 DROP TABLE temp;
@@ -417,8 +467,8 @@ $$ LANGUAGE plpgsql;
 
 
 
-SELECT FrenemiesOfFrenemies(4642)
-SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId
+SELECT FrenemiesOfFrenemies(4642);
+SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId;
 
 
 
