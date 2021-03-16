@@ -245,7 +245,7 @@ AS $$
             WHERE IdPerson = P.personId
         ));
 
-        --Bonus 5% is innocent --> isculprit = false?
+        --Bonus 5% is innocent --> isculprit = false
         IF (
             SELECT 
                 L.locationid 
@@ -253,8 +253,9 @@ AS $$
                 JOIN Locations L ON P.locationId = L.locationId 
             WHERE IdPerson = P.personId
         ) IN (
-                SELECT P.locationId FROM People P
-                JOIN Agents A ON A.secretIdentity = P.personId
+                SELECT P.locationId 
+                FROM People P
+                    JOIN Agents A ON A.secretIdentity = P.personId
             ) 
         THEN 
             INSERT INTO InvolvedIn
@@ -284,7 +285,7 @@ AS $$
                     C.agentId = IdAgent
                 ), 
                 IdAgent, 
-                TRUE
+                NULL
             );
         END IF;
     END;
@@ -301,25 +302,28 @@ BEGIN;
 
     SELECT startInvestigation(
         89,
-        692,
+        8, --sandra valtyrsdottir
         'wassa2',
         2022
     );
 
-    SELECT A.codename, P.name, C.title, C.year, I.isculprit
+    SELECT A.codename, P2.LocationID, P.name, P.LocationID, C.title, C.year, I.isculprit
     FROM Agents A 
-    JOIN InvolvedIn I ON A.agentId = I.agentId
-    JOIN People P ON I.personId = P.personId
-    JOIN Locations L ON P.locationId = L.locationId
-    JOIN Cases C ON C.caseId = I.caseId
+        JOIN InvolvedIn I ON A.agentId = I.agentId
+        JOIN People P2 ON A.secretIdentity = P2.PersonID 
+        JOIN People P ON I.personId = P.personId
+        JOIN Locations L ON P.locationId = L.locationId
+        JOIN Cases C ON C.caseId = I.caseId
     WHERE C.title = 'Wassaaa';
 
-    SELECT A.codename, P.name, C.title, C.year, I.isculprit
+    
+    SELECT A.codename, P2.LocationID, P.name, P.LocationID, C.title, C.year, I.isculprit
     FROM Agents A 
-    JOIN InvolvedIn I ON A.agentId = I.agentId
-    JOIN People P ON I.personId = P.personId
-    JOIN Locations L ON P.locationId = L.locationId
-    JOIN Cases C ON C.caseId = I.caseId
+        JOIN InvolvedIn I ON A.agentId = I.agentId
+        JOIN People P2 ON A.secretIdentity = P2.PersonID 
+        JOIN People P ON I.personId = P.personId
+        JOIN Locations L ON P.locationId = L.locationId
+        JOIN Cases C ON C.caseId = I.caseId
     WHERE C.title = 'wassa2';
 ROLLBACK;
 
