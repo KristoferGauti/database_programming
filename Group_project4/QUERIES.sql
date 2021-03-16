@@ -245,7 +245,7 @@ AS $$
             WHERE IdPerson = P.personId
         ));
 
-        --Bonus 5% is innocent --> isculprit = false
+        --Bonus 5% is innocent --> isculprit = false?
         IF (
             SELECT 
                 L.locationid 
@@ -253,9 +253,8 @@ AS $$
                 JOIN Locations L ON P.locationId = L.locationId 
             WHERE IdPerson = P.personId
         ) IN (
-                SELECT P.locationId 
-                FROM People P
-                    JOIN Agents A ON A.secretIdentity = P.personId
+                SELECT P.locationId FROM People P
+                JOIN Agents A ON A.secretIdentity = P.personId
             ) 
         THEN 
             INSERT INTO InvolvedIn
@@ -285,7 +284,7 @@ AS $$
                     C.agentId = IdAgent
                 ), 
                 IdAgent, 
-                NULL
+                TRUE
             );
         END IF;
     END;
@@ -302,28 +301,25 @@ BEGIN;
 
     SELECT startInvestigation(
         89,
-        8, --sandra valtyrsdottir
+        692,
         'wassa2',
         2022
     );
 
-    SELECT A.codename, P2.LocationID, P.name, P.LocationID, C.title, C.year, I.isculprit
+    SELECT A.codename, P.name, C.title, C.year, I.isculprit
     FROM Agents A 
-        JOIN InvolvedIn I ON A.agentId = I.agentId
-        JOIN People P2 ON A.secretIdentity = P2.PersonID 
-        JOIN People P ON I.personId = P.personId
-        JOIN Locations L ON P.locationId = L.locationId
-        JOIN Cases C ON C.caseId = I.caseId
+    JOIN InvolvedIn I ON A.agentId = I.agentId
+    JOIN People P ON I.personId = P.personId
+    JOIN Locations L ON P.locationId = L.locationId
+    JOIN Cases C ON C.caseId = I.caseId
     WHERE C.title = 'Wassaaa';
 
-    
-    SELECT A.codename, P2.LocationID, P.name, P.LocationID, C.title, C.year, I.isculprit
+    SELECT A.codename, P.name, C.title, C.year, I.isculprit
     FROM Agents A 
-        JOIN InvolvedIn I ON A.agentId = I.agentId
-        JOIN People P2 ON A.secretIdentity = P2.PersonID 
-        JOIN People P ON I.personId = P.personId
-        JOIN Locations L ON P.locationId = L.locationId
-        JOIN Cases C ON C.caseId = I.caseId
+    JOIN InvolvedIn I ON A.agentId = I.agentId
+    JOIN People P ON I.personId = P.personId
+    JOIN Locations L ON P.locationId = L.locationId
+    JOIN Cases C ON C.caseId = I.caseId
     WHERE C.title = 'wassa2';
 ROLLBACK;
 
@@ -338,6 +334,7 @@ CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
 AS $$
     DECLARE rec1 RECORD;
+    DECLARE rec2 RECORD;
     DECLARE lowestAgentId INT := (
                     SELECT agentID FROM
                     (
@@ -364,25 +361,28 @@ AS $$
     BEGIN
         -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
         FOR rec1 IN (
+            -- LIST of each case that the old agend had
             SELECT 
                 *
             FROM Cases C 
             WHERE C.agentId = OLD.agentId) LOOP
 
+            UPDATE InvolvedIn
+            SET agentID = NULL
+            WHERE agentID = rec1.agentID;
+
+            -- UPDATE for each case a new agent
             UPDATE Cases
             SET agentId = lowestAgentId
             WHERE caseId = rec1.caseId;
         END LOOP;
-
-
-                
-            --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
+      
+        --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
 
 
         -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
         -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
-
-
+        
         -- c) The agent that was removed from the database has a secretIdentity
         -- That needs to be removed aswell from the People table.
         -- Remove also the people with P.personId = A.secretIdentity
@@ -391,24 +391,46 @@ AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION deletedPeople()
+RETURNS TRIGGER
+AS $$
+    BEGIN
+        --RAISE EXCEPTION '%', OLD.secretIdentity; 
+        DELETE FROM People
+        WHERE personID = OLD.secretIdentity;
+
+        -- BONUS
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+
 --DROP TRIGGER deleteAgentsTrigger ON Agents;
-CREATE TRIGGER deleteAgentsTrigger
+CREATE TRIGGER bdeleteAgentsTrigger
     BEFORE DELETE ON Agents
     FOR EACH ROW
-    EXECUTE PROCEDURE deletedAgent()
+    EXECUTE PROCEDURE deletedAgent();
 
+CREATE TRIGGER adeleteAgentsTrigger
+    AFTER DELETE ON Agents
+    FOR EACH ROW
+    EXECUTE PROCEDURE deletedPeople();
 
-
+DROP TRIGGER deleteAgentsTrigger ON Agents
 
 --Tests
 BEGIN;
+    SELECT COUNT(*) FROM People;
+    --SELECT * FROM CASES C WHERE C.agentID = 10;
+
     DELETE FROM Agents A
     WHERE A.agentId = 10;
 
-    SELECT * FROM CASES C WHERE C.agentID = 10;
+    --SELECT * FROM CASES C WHERE C.caseId = 93;
+    SELECT COUNT(*) FROM People;
 ROLLBACK;
 
-SELECT * FROM CASES C WHERE C.agentID = 10;
 
 
 ---------------------------- 9 ----------------------------
@@ -512,6 +534,5 @@ $$ LANGUAGE plpgsql;
 
 SELECT FrenemiesOfFrenemies(4642);
 SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId;
-
 
 
