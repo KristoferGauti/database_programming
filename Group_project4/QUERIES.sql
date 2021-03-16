@@ -250,22 +250,53 @@ AS $$
             WHERE IdPerson = P.personId
         ));
 
-        INSERT INTO InvolvedIn
-        VALUES
-        (
-            IdPerson, 
+        --Bonus 5% is innocent --> isculprit = false?
+        IF (
+            SELECT 
+                L.locationid 
+            FROM People P 
+                JOIN Locations L ON P.locationId = L.locationId 
+            WHERE IdPerson = P.personId
+        ) IN (
+                SELECT P.locationId FROM People P
+                JOIN Agents A ON A.secretIdentity = P.personId
+            ) 
+        THEN 
+            INSERT INTO InvolvedIn
+            VALUES
             (
-                SELECT C.caseId 
-                FROM cases C
-                WHERE C.title = caseName AND
-                C.year = caseYear AND
-                C.agentId = IdAgent
-            ), 
-            IdAgent, 
-            TRUE
-        );
+                IdPerson, 
+                (
+                    SELECT C.caseId 
+                    FROM cases C
+                    WHERE C.title = caseName AND
+                    C.year = caseYear AND
+                    C.agentId = IdAgent
+                ), 
+                IdAgent, 
+                FALSE
+            );
+        ELSE
+            INSERT INTO InvolvedIn
+            VALUES
+            (
+                IdPerson, 
+                (
+                    SELECT C.caseId 
+                    FROM cases C
+                    WHERE C.title = caseName AND
+                    C.year = caseYear AND
+                    C.agentId = IdAgent
+                ), 
+                IdAgent, 
+                TRUE
+            );
+        END IF;
     END;
 $$ LANGUAGE plpgsql;
+
+SELECT P.name, P.locationId FROM People P
+JOIN Agents A ON A.secretIdentity = P.personId
 
 BEGIN;
     SELECT startInvestigation(
@@ -275,13 +306,34 @@ BEGIN;
         2021 --caseYear
     );
 
-    SELECT A.codename, P.name, C.title, C.year
+    SELECT startInvestigation(
+        89,
+        692,
+        'wassa2',
+        2022
+    );
+
+    SELECT A.codename, P.name, C.title, C.year, I.isculprit
     FROM Agents A 
     JOIN InvolvedIn I ON A.agentId = I.agentId
     JOIN People P ON I.personId = P.personId
     JOIN Locations L ON P.locationId = L.locationId
     JOIN Cases C ON C.caseId = I.caseId
-    WHERE A.AgentId = 5 AND P.personId = 2 AND C.title = 'Wassaaa' AND C.year = 2021;
+    WHERE A.agentId = 5 AND 
+    P.personId = 2 AND
+    C.title = 'Wassaaa' AND
+    C.year = 2021;
+
+    SELECT A.codename, P.name, C.title, C.year, I.isculprit
+    FROM Agents A 
+    JOIN InvolvedIn I ON A.agentId = I.agentId
+    JOIN People P ON I.personId = P.personId
+    JOIN Locations L ON P.locationId = L.locationId
+    JOIN Cases C ON C.caseId = I.caseId
+    WHERE A.agentId = 89 AND 
+    P.personId = 692 AND
+    C.title = 'wassa2' AND
+    C.year = 2022;
 ROLLBACK;
 
 ---------------------------- 8 ----------------------------
