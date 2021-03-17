@@ -109,23 +109,59 @@ SELECT 3 AS QUERY;
 
 CREATE OR REPLACE VIEW Nemeses(AgentID, Codename, PersonID, Name) AS
 SELECT 
-    agentid, codename, personid, name
-FROM 
-    (
-    SELECT A.agentID, A.codename, P.personId, P.name, COUNT(*) as culpritCount
-    FROM Agents A
-        JOIN Cases C ON A.agentID = C.agentID
-        JOIN InvolvedIn I ON C.caseId = I.caseId
-        JOIN People P ON P.personId = I.personId
-    WHERE
-        I.isCulprit = true
-    GROUP BY
-        A.agentID, P.personId
-    ) as CulpritCoutTable
-WHERE 
-    CulpritCoutTable.culpritCount > 1;
+    A.agentId, 
+    A.codename, 
+    P.personId, 
+    P.name,
+    COUNT(I.isCulprit)
+FROM
+    Agents A
+    JOIN InvolvedIn I ON A.agentId = I.agentId
+    JOIN People P ON P.personId = I.personId
+WHERE I.isCulprit = TRUE
+GROUP BY P.personId, A.agentId
+HAVING COUNT(I.isculprit) > 1 AND COUNT(I.isCulprit) =
+(
+    SELECT MAX(culpritCount) FROM (
+        SELECT COUNT(I.isCulprit) culpritCount FROM Agents A
+        JOIN InvolvedIn I ON A.agentId = I.agentId
+        JOIN People P1 ON P1.personId = I.personId
+        WHERE I.isCulprit = TRUE AND P1.personId = P.personId
+        GROUP BY I.personId, A.agentId
+    ) AS culpritCountTable
+);
 
 SELECT * FROM Nemeses;
+
+BEGIN;
+
+-- Should not be displayed 
+INSERT INTO InvolvedIn
+VALUES(249, 69, 63, TRUE);
+
+-- Should be displayed
+INSERT INTO People
+VALUES(default, 'Lalli Palli', 1, 1, 1);
+
+-- Agent with ID 1 investigates Lalli
+INSERT INTO InvolvedIn
+VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 1, 1, TRUE);
+INSERT INTO InvolvedIn
+VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 2, 1, TRUE);
+INSERT INTO InvolvedIn
+VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 3, 1, TRUE);
+
+-- Agent with ID 2 investigates Lalli
+INSERT INTO InvolvedIn
+VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 10, 2, TRUE);
+INSERT INTO InvolvedIn
+VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 11, 2, TRUE);
+
+-- CALL VIEW HERE
+SELECT * FROM Nemeses;
+
+ROLLBACK;
+END;
 
 
 ---------------------------- 4 ----------------------------
@@ -533,7 +569,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-SELECT FrenemiesOfFrenemies(4642);
+SELECT FrenemiesOfFrenemies(4);
 SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId;
 
 
