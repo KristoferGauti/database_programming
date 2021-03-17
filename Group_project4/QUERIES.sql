@@ -161,7 +161,7 @@ $$ LANGUAGE plpgsql;
 BEGIN;
     SELECT insertPerson(
         'Bergur', 
-        69, 
+        10000, 
         3,
         91,
         'Hallo');
@@ -187,7 +187,7 @@ AS $$
             SELECT C.locationId, COUNT(*) caseC
             FROM Cases C
                 JOIN Locations L ON C.locationId = L.locationId
-            GROUP BY C.locationId, L.location
+            GROUP BY C.locationId
         ) AS TAB
     WHERE Locations.locationId = TAB.locationId;
 
@@ -197,7 +197,6 @@ $$ LANGUAGE SQL;
 BEGIN;
     SELECT 	CaseCountFixer();
     SELECT * FROM Locations
-    ORDER BY Locations.locationId ASC;
 ROLLBACK;
 
 ---------------------------- 6 ----------------------------
