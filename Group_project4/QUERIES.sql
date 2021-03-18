@@ -51,7 +51,7 @@ GROUP BY
     
 
 
-SELECT * from NumOfCases
+SELECT * from NumOfCases;
 
 SELECT
     L.location,
@@ -63,7 +63,7 @@ FROM
 WHERE
     A.codename = 'Duster'
 GROUP BY
-    L.location
+    L.location;
 
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
@@ -112,8 +112,7 @@ SELECT
     A.agentId, 
     A.codename, 
     P.personId, 
-    P.name,
-    COUNT(I.isCulprit)
+    P.name
 FROM
     Agents A
     JOIN InvolvedIn I ON A.agentId = I.agentId
@@ -211,9 +210,6 @@ ROLLBACK;
 ---------------------------- 5 ----------------------------
 SELECT 5 AS QUERY;
 
-SELECT * FROM Locations
-
-
 CREATE OR REPLACE FUNCTION 	CaseCountFixer() 
 RETURNS VOID
 AS $$
@@ -232,7 +228,7 @@ $$ LANGUAGE SQL;
 
 BEGIN;
     SELECT 	CaseCountFixer();
-    SELECT * FROM Locations
+    SELECT * FROM Locations;
 ROLLBACK;
 
 ---------------------------- 6 ----------------------------
@@ -247,15 +243,13 @@ $$
     END;
 $$;
 
-CREATE OR REPLACE TRIGGER CaseCountTracker
+CREATE TRIGGER CaseCountTracker
     AFTER INSERT OR UPDATE ON Cases 
     EXECUTE PROCEDURE CaseCountFixerTrigger();
 
 
 ---------------------------- 7 ----------------------------
 SELECT 7 AS QUERY;
-
-
 
 CREATE OR REPLACE FUNCTION startInvestigation(
     IdAgent INTEGER,
@@ -365,8 +359,6 @@ ROLLBACK;
 ---------------------------- 8 ----------------------------
 SELECT 8 AS QUERY;
 
-SELECT * FROM Cases C JOIN 
-
 CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
 AS $$
@@ -396,7 +388,6 @@ AS $$
                     LIMIT 1
                 ); 
     BEGIN
-        -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
         FOR rec1 IN (
             -- LIST of each case that the old agend had
             SELECT 
@@ -413,16 +404,6 @@ AS $$
             SET agentId = lowestAgentId
             WHERE caseId = rec1.caseId;
         END LOOP;
-      
-        --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
-
-
-        -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
-        -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
-        
-        -- c) The agent that was removed from the database has a secretIdentity
-        -- That needs to be removed aswell from the People table.
-        -- Remove also the people with P.personId = A.secretIdentity
 
         RETURN OLD;
     END;
@@ -432,7 +413,6 @@ CREATE OR REPLACE FUNCTION deletedPeople()
 RETURNS TRIGGER
 AS $$
     BEGIN
-        --RAISE EXCEPTION '%', OLD.secretIdentity; 
         DELETE FROM People
         WHERE personID = OLD.secretIdentity;
 
@@ -454,7 +434,6 @@ CREATE TRIGGER adeleteAgentsTrigger
     FOR EACH ROW
     EXECUTE PROCEDURE deletedPeople();
 
-DROP TRIGGER deleteAgentsTrigger ON Agents
 
 --Tests
 BEGIN;
