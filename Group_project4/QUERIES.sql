@@ -109,6 +109,7 @@ SELECT 3 AS QUERY;
 
 CREATE OR REPLACE VIEW Nemeses(AgentID, Codename, PersonID, Name) AS
 SELECT 
+<<<<<<< Updated upstream
     A.agentId, 
     A.codename, 
     P.personId, 
@@ -135,6 +136,27 @@ SELECT * FROM Nemeses;
 
 BEGIN;
 
+=======
+    agentid, codename, personid, name
+FROM 
+    (
+    SELECT A.agentID, A.codename, P.personId, P.name, COUNT(P.personID) as culpritCount
+    FROM Agents A
+        JOIN People P ON P.personId = A.secretIdentity
+        JOIN InvolvedIn I ON P.personID = I.personID      
+    WHERE
+        I.isCulprit = true
+    GROUP BY
+        A.agentID, P.personId
+    ) as CulpritCoutTable
+WHERE 
+    CulpritCoutTable.culpritCount > 1;
+
+SELECT * FROM Nemeses
+
+BEGIN;
+
+>>>>>>> Stashed changes
 -- Should not be displayed 
 INSERT INTO InvolvedIn
 VALUES(249, 69, 63, TRUE);
@@ -157,12 +179,20 @@ VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 10, 2, TR
 INSERT INTO InvolvedIn
 VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 11, 2, TRUE);
 
+<<<<<<< Updated upstream
 -- CALL VIEW HERE
+=======
+
+
+>>>>>>> Stashed changes
 SELECT * FROM Nemeses;
 
 ROLLBACK;
 END;
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 ---------------------------- 4 ----------------------------
 SELECT 4 AS QUERY;
@@ -414,15 +444,6 @@ AS $$
             WHERE caseId = rec1.caseId;
         END LOOP;
       
-        --FIND THE ID OF THE AGENT WITH THE LOWEST CLOSED CASES(AND LOWEST DESIGNATION)
-
-
-        -- b) Breyta öllum röðum í InvolvedIn töfluni þar sem þessi agent var assignaður yfir í NULL
-        -- PersonID, CaseID, AgentID, isCulprit --> PersonID, CaseID, NULL, isCulprit
-        
-        -- c) The agent that was removed from the database has a secretIdentity
-        -- That needs to be removed aswell from the People table.
-        -- Remove also the people with P.personId = A.secretIdentity
 
         RETURN OLD;
     END;
@@ -493,83 +514,50 @@ $$
     END;
 $$ LANGUAGE plpgsql;
 
-SELECT LastCase('Garðabær');
-
 
 ---------------------------- 10 ----------------------------
 SELECT 10 AS QUERY;
 
+
+-- 1. Create a function that takes in PersonID and returns the id's of frenemies
+-- 2. Find all people that have the same case ID's as the frenemies in 1.
 CREATE OR REPLACE FUNCTION FrenemiesOfFrenemies(PersonID_in INT)
-RETURNS TABLE(names varchar(255)) AS
+RETURNS TABLE(name VARCHAR(50)) AS
 $$
-DECLARE rec1 RECORD;
-DECLARE rec2 RECORD;
-DECLARE rec3 RECORD;
-DECLARE rec4 RECORD;
 BEGIN
-    CREATE TABLE temp(name varchar(255), personid INT);
-
-    FOR rec1 IN (  SELECT 
-                    caseid, name 
-                FROM (
-                        SELECT 
-                            *
-                        FROM
-                            People P
-                            JOIN InvolvedIn I ON I.personId = P.personId
-                        WHERE
-                            P.personId = PersonID_in
-                    ) as INVOLVEDCASES
-                ) LOOP
-    FOR rec2 IN (
-        SELECT 
-            P.name, 
-            Inv.caseId,
-            P.personId 
-        FROM People P 
-            JOIN InvolvedIn Inv ON P.personId = Inv.personId 
-        WHERE Inv.caseId = rec1.caseid AND 
-        P.name != rec1.name
-        ) LOOP
-        INSERT INTO temp VALUES (rec2.name, rec2.personId);
-        RETURN QUERY SELECT rec2.name;
-
-        END LOOP;
-    END LOOP;
-
-    FOR rec3 IN (
-        SELECT 
-            T.name, 
-            T.personID 
-        FROM temp T
-        ) LOOP
-    FOR rec4 IN (
-        SELECT 
-            P.name, 
-            Inv.caseId, 
-            P.personId 
-        FROM People P 
-            JOIN InvolvedIn Inv ON P.personId = Inv.personId 
-            WHERE Inv.caseId = rec1.caseid AND 
-            P.name NOT IN (
-                SELECT 
-                    T.name 
-                FROM temp T
-                ) AND 
-            P.personID != PersonID_in
-            ) LOOP
-        INSERT INTO temp VALUES (rec4.name, rec4.personId);
-        RETURN QUERY SELECT rec4.name;
-    END LOOP;
-END LOOP;
-DROP TABLE temp;
+RETURN QUERY
+    SELECT DISTINCT P.name
+    FROM People P
+    JOIN InvolvedIn I ON P.personID = I.personID
+    WHERE I.caseid IN (
+        SELECT I.caseId
+        FROM People P
+        JOIN InvolvedIn I ON P.personID = I.personID
+        WHERE P.personId IN (SELECT * FROM FindFrenemies(PersonID_in))
+    ) AND P.personId !=  PersonID_in;
 END;
-$$ LANGUAGE plpgsql;
+
+$$ LANGUAGE PLPGSQL;
 
 
+CREATE OR REPLACE FUNCTION FindFrenemies(PersonID_in INT)
+RETURNS TABLE(personId INT) AS
+$$
+BEGIN
+RETURN QUERY
+    SELECT P.personID
+    FROM People P
+    JOIN InvolvedIn I ON P.personID = I.personID
+    WHERE I.caseId = (  
+                        SELECT I.caseid
+                        FROM People P
+                        JOIN InvolvedIn I ON P.personID = I.personID 
+                        WHERE P.personID = PersonID_in
+                    )
+                    AND P.personID != PersonID_in;
+END;  
+$$ LANGUAGE PLPGSQL;
 
+SELECT * FROM FindFrenemies(4);
 
 SELECT FrenemiesOfFrenemies(4);
-SELECT P.name, Inv.caseId, P.personId FROM People P JOIN InvolvedIn Inv ON P.personId = Inv.personId;
-
-
