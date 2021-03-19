@@ -51,7 +51,7 @@ GROUP BY
     
 
 
-SELECT * from NumOfCases
+SELECT * from NumOfCases;
 
 SELECT
     L.location,
@@ -63,7 +63,7 @@ FROM
 WHERE
     A.codename = 'Duster'
 GROUP BY
-    L.location
+    L.location;
 
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
@@ -109,12 +109,10 @@ SELECT 3 AS QUERY;
 
 CREATE OR REPLACE VIEW Nemeses(AgentID, Codename, PersonID, Name) AS
 SELECT 
-<<<<<<< Updated upstream
     A.agentId, 
     A.codename, 
     P.personId, 
-    P.name,
-    COUNT(I.isCulprit)
+    P.name
 FROM
     Agents A
     JOIN InvolvedIn I ON A.agentId = I.agentId
@@ -136,27 +134,6 @@ SELECT * FROM Nemeses;
 
 BEGIN;
 
-=======
-    agentid, codename, personid, name
-FROM 
-    (
-    SELECT A.agentID, A.codename, P.personId, P.name, COUNT(P.personID) as culpritCount
-    FROM Agents A
-        JOIN People P ON P.personId = A.secretIdentity
-        JOIN InvolvedIn I ON P.personID = I.personID      
-    WHERE
-        I.isCulprit = true
-    GROUP BY
-        A.agentID, P.personId
-    ) as CulpritCoutTable
-WHERE 
-    CulpritCoutTable.culpritCount > 1;
-
-SELECT * FROM Nemeses
-
-BEGIN;
-
->>>>>>> Stashed changes
 -- Should not be displayed 
 INSERT INTO InvolvedIn
 VALUES(249, 69, 63, TRUE);
@@ -179,20 +156,11 @@ VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 10, 2, TR
 INSERT INTO InvolvedIn
 VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 11, 2, TRUE);
 
-<<<<<<< Updated upstream
 -- CALL VIEW HERE
-=======
-
-
->>>>>>> Stashed changes
 SELECT * FROM Nemeses;
 
 ROLLBACK;
 END;
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 ---------------------------- 4 ----------------------------
 SELECT 4 AS QUERY;
@@ -241,9 +209,6 @@ ROLLBACK;
 ---------------------------- 5 ----------------------------
 SELECT 5 AS QUERY;
 
-SELECT * FROM Locations
-
-
 CREATE OR REPLACE FUNCTION 	CaseCountFixer() 
 RETURNS VOID
 AS $$
@@ -262,7 +227,7 @@ $$ LANGUAGE SQL;
 
 BEGIN;
     SELECT 	CaseCountFixer();
-    SELECT * FROM Locations
+    SELECT * FROM Locations;
 ROLLBACK;
 
 ---------------------------- 6 ----------------------------
@@ -277,15 +242,13 @@ $$
     END;
 $$;
 
-CREATE OR REPLACE TRIGGER CaseCountTracker
+CREATE TRIGGER CaseCountTracker
     AFTER INSERT OR UPDATE ON Cases 
     EXECUTE PROCEDURE CaseCountFixerTrigger();
 
 
 ---------------------------- 7 ----------------------------
 SELECT 7 AS QUERY;
-
-
 
 CREATE OR REPLACE FUNCTION startInvestigation(
     IdAgent INTEGER,
@@ -395,8 +358,6 @@ ROLLBACK;
 ---------------------------- 8 ----------------------------
 SELECT 8 AS QUERY;
 
-SELECT * FROM Cases C JOIN 
-
 CREATE OR REPLACE FUNCTION deletedAgent()
 RETURNS TRIGGER
 AS $$
@@ -426,7 +387,6 @@ AS $$
                     LIMIT 1
                 ); 
     BEGIN
-        -- a) LOCATE EACH ROW WHERE THE OLD AGENT HAD A CASE AND REPLACE THE AGENT WITH THE NEW AGENT(IN BELOW COMMENT)
         FOR rec1 IN (
             -- LIST of each case that the old agend had
             SELECT 
@@ -444,7 +404,6 @@ AS $$
             WHERE caseId = rec1.caseId;
         END LOOP;
       
-
         RETURN OLD;
     END;
 $$ LANGUAGE plpgsql;
@@ -453,7 +412,6 @@ CREATE OR REPLACE FUNCTION deletedPeople()
 RETURNS TRIGGER
 AS $$
     BEGIN
-        --RAISE EXCEPTION '%', OLD.secretIdentity; 
         DELETE FROM People
         WHERE personID = OLD.secretIdentity;
 
@@ -475,7 +433,6 @@ CREATE TRIGGER adeleteAgentsTrigger
     FOR EACH ROW
     EXECUTE PROCEDURE deletedPeople();
 
-DROP TRIGGER deleteAgentsTrigger ON Agents
 
 --Tests
 BEGIN;
