@@ -53,17 +53,6 @@ GROUP BY
 
 SELECT * from NumOfCases;
 
-SELECT
-    L.location,
-    COUNT(L.locationId) as LocationCount
-FROM
-    Agents A
-    JOIN Cases C ON A.agentID = C.agentID
-    JOIN Locations L ON C.locationId = L.locationId
-WHERE
-    A.codename = 'Duster'
-GROUP BY
-    L.location;
 
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
@@ -334,7 +323,6 @@ BEGIN;
         'wassa2',
         2022
     );
-
     SELECT A.codename, P2.LocationID, P.name, P.LocationID, C.title, C.year, I.isculprit
     FROM Agents A 
         JOIN InvolvedIn I ON A.agentId = I.agentId
@@ -344,7 +332,7 @@ BEGIN;
         JOIN Cases C ON C.caseId = I.caseId
     WHERE C.title = 'Wassaaa';
 
-    
+
     SELECT A.codename, P2.LocationID, P.name, P.LocationID, C.title, C.year, I.isculprit
     FROM Agents A 
         JOIN InvolvedIn I ON A.agentId = I.agentId
