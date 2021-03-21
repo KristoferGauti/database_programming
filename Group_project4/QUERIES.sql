@@ -50,13 +50,10 @@ GROUP BY
     A.AgentID; 
     
 
-<<<<<<< HEAD
 
 SELECT * from NumOfCases;
 
 
-=======
->>>>>>> df838cd6550f60183be6f110a98084090e882acb
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
 
