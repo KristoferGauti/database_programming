@@ -50,48 +50,45 @@ GROUP BY
     A.AgentID; 
     
 
+<<<<<<< HEAD
 
 SELECT * from NumOfCases;
 
 
+=======
+>>>>>>> df838cd6550f60183be6f110a98084090e882acb
 ---------------------------- 2 ----------------------------
 SELECT 2 AS QUERY;
 
-CREATE
-OR REPLACE VIEW subTopSuspects(personId, personName, personLocation, numOfCases) AS
-SELECT
-    P.personId,
-    P.name,
-    L.location,
-    COUNT(P.personId)
-FROM
-    People P
-    JOIN Locations L ON P.locationId = L.locationId
-    JOIN InvolvedIn I ON P.personId = I.personId
-    JOIN Cases C ON C.caseId = I.caseId
-GROUP BY
-    P.personId,
-    L.locationId
-HAVING
-    L.location = 'Stokkseyri';
 
-CREATE
-OR REPLACE VIEW topThreeSuspects(personId, personName, personLocation) AS
+
+CREATE OR REPLACE VIEW topThreeSuspects(personId, personName, personLocation) AS
 SELECT
     personId,
-    personName,
-    personLocation
+    name,
+    location
 FROM
-    subTopSuspects
+    (
+    SELECT
+        P.personId,
+        P.name,
+        L.location,
+        COUNT(P.personId) AS numOfCases
+    FROM
+        People P
+        JOIN Locations L ON P.locationId = L.locationId
+        JOIN InvolvedIn I ON P.personId = I.personId
+        JOIN Cases C ON C.caseId = I.caseId
+    GROUP BY
+        P.personId,
+        L.locationId
+    HAVING
+        L.location = 'Stokkseyri'
+    ) AS numCaseTable
 ORDER BY
     numOfCases DESC
-LIMIT
-    3;
+LIMIT 3;
 
-SELECT
-    *
-FROM
-    topThreeSuspects;
 
 ---------------------------- 3 ----------------------------
 SELECT 3 AS QUERY;
@@ -119,48 +116,15 @@ HAVING COUNT(I.isculprit) > 1 AND COUNT(I.isCulprit) =
     ) AS culpritCountTable
 );
 
-SELECT * FROM Nemeses;
-
-BEGIN;
-
--- Should not be displayed 
-INSERT INTO InvolvedIn
-VALUES(249, 69, 63, TRUE);
-
--- Should be displayed
-INSERT INTO People
-VALUES(default, 'Lalli Palli', 1, 1, 1);
-
--- Agent with ID 1 investigates Lalli
-INSERT INTO InvolvedIn
-VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 1, 1, TRUE);
-INSERT INTO InvolvedIn
-VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 2, 1, TRUE);
-INSERT INTO InvolvedIn
-VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 3, 1, TRUE);
-
--- Agent with ID 2 investigates Lalli
-INSERT INTO InvolvedIn
-VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 10, 2, TRUE);
-INSERT INTO InvolvedIn
-VALUES((SELECT P.PersonID FROM People P WHERE P.name = 'Lalli Palli'), 11, 2, TRUE);
-
--- CALL VIEW HERE
-SELECT * FROM Nemeses;
-
-ROLLBACK;
-END;
-
 ---------------------------- 4 ----------------------------
 SELECT 4 AS QUERY;
 
-CREATE OR REPLACE FUNCTION insertPerson(
+CREATE OR REPLACE PROCEDURE insertPerson(
     name VARCHAR(255),
     profId INTEGER,
     genderId INTEGER,
     locationId INTEGER,
     Prdescription VARCHAR(255))
-RETURNS VOID
 AS $$
     BEGIN
         IF name = '' THEN 
@@ -182,7 +146,7 @@ AS $$
 $$ LANGUAGE plpgsql;
 
 BEGIN;
-    SELECT insertPerson(
+    Call insertPerson(
         'Bergur', 
         10000, 
         3,
@@ -213,26 +177,13 @@ AS $$
 
 $$ LANGUAGE SQL;
 
-
-BEGIN;
-    SELECT 	CaseCountFixer();
-    SELECT * FROM Locations;
-ROLLBACK;
-
 ---------------------------- 6 ----------------------------
 SELECT 6 AS QUERY;
 
-CREATE OR REPLACE FUNCTION CaseCountFixerTrigger()
-RETURNS TRIGGER
-LANGUAGE plpgsql AS 
-$$
-    BEGIN
-    EXECUTE CaseCountFixer();
-    END;
-$$;
 
 CREATE TRIGGER CaseCountTracker
-    AFTER INSERT OR UPDATE ON Cases 
+    AFTER INSERT OR DELETE OR UPDATE OF locationId ON Cases
+    FOR EACH ROW
     EXECUTE PROCEDURE CaseCountFixerTrigger();
 
 
