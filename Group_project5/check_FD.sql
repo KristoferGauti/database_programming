@@ -1,0 +1,6 @@
+SELECT IF (COUNT(*)=0, 'R1: A --> B', 'R1: A -/> B') AS FD
+FROM (SELECT A
+      FROM R1
+      GROUP BY A
+      HAVING COUNT(DISTINCT B) > 1
+) X;

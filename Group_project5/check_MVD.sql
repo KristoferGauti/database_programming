@@ -1,0 +1,7 @@
+SELECT IF (COUNT(*) = 0, 'MAYBE MVD', 'NO MVD') AS MVD 
+FROM (SELECT A
+      FROM R2
+      GROUP BY A
+      HAVING (COUNT(DISTINCT B) * COUNT(DISTINCT C) 
+                   <> COUNT(*))
+) X;
